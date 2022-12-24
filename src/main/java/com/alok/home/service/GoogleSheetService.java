@@ -100,8 +100,6 @@ public class GoogleSheetService {
             InputStream inputStream = null; // put your service account's key.json file in asset folder.
             try {
                 inputStream = new FileInputStream(serviceAccountKeyFile);
-                //byte[] bytes = inputStream.readAllBytes();
-                //log.info("Content: {}", new String(bytes));
             } catch (FileNotFoundException e) {
                 log.error("Google Sheet initialization failed with error: " + e.getMessage());
                 e.printStackTrace();
@@ -157,6 +155,7 @@ public class GoogleSheetService {
                 .toList();
 
         log.info("Number of transactions: {}", records.size());
+        taxRepository.deleteAll();
         taxRepository.saveAll(records);
     }
 
@@ -181,7 +180,7 @@ public class GoogleSheetService {
                 .toList();
 
         log.info("Number of transactions: {}", records.size());
-
+        expenseRepository.deleteAll();
         expenseRepository.saveAll(records);
     }
 
@@ -227,6 +226,7 @@ public class GoogleSheetService {
                 .toList();
 
         log.info("Number of transactions: {}", records.size());
+        investmentRepository.deleteAll();
         investmentRepository.saveAll(records);
     }
 
@@ -252,6 +252,7 @@ public class GoogleSheetService {
                 .toList();
 
         log.info("Number of transactions: {}", records.size());
+        odionTransactionRepository.deleteAll();
         odionTransactionRepository.saveAll(records);
     }
 
