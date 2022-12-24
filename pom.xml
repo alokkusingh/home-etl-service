@@ -9,11 +9,11 @@
        	<version>3.0.0</version>
        	<relativePath/> <!-- lookup parent from repository -->
     </parent>
-	<groupId>com.alok.spring</groupId>
-	<artifactId>spring-batch-pdf-parser</artifactId>
-	<version>1.0.3-SNAPSHOT</version>
-	<name>spring-batch-pdf-parser</name>
-	<description>Home Service</description>
+	<groupId>com.alok.home</groupId>
+	<artifactId>home-etl-service</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<name>home-etl-service</name>
+	<description>Home ETL Service</description>
 
 	<properties>
 		<maven.test.skip>true</maven.test.skip>
@@ -22,6 +22,11 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.alok.home</groupId>
+			<artifactId>home-commons</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.github.librepdf/openpdf -->
 		<dependency>
 			<groupId>com.github.librepdf</groupId>
@@ -127,11 +132,6 @@
 			<version>1.20.0</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.alok.mqtt</groupId>
-			<artifactId>mqtt-proxy</artifactId>
-			<version>1.0.4</version>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -141,18 +141,6 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
-		<!--	<plugin>
-				<groupId>org.graalvm.buildtools</groupId>
-				<artifactId>native-maven-plugin</artifactId>
-				<configuration>
-					<buildArgs>
-						-H:+PrintClassInitialization
-						-Dspring.graal.verbose=true
-						-H:+InlineBeforeAnalysis
-					</buildArgs>
-				</configuration>
-			</plugin>
-			-->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
