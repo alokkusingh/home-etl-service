@@ -244,7 +244,7 @@ public class GoogleSheetService {
                 .map(row -> OdionTransaction.builder()
                         .date(LocalDate.parse((String)row.get(0), formatter))
                         .particular((String)row.get(1))
-                        .debitAccount(((String) row.get(2)).length() != 0 ? OdionTransaction.Account.OPENING_BALANCE : OdionTransaction.Account.valueOfOrDefault((String)row.get(2)))
+                        .debitAccount(OdionTransaction.Account.valueOfOrDefault((String)row.get(2)))
                         .creditAccount(OdionTransaction.Account.valueOfOrDefault((String)row.get(3)))
                         .amount(Double.parseDouble((String) row.get(4)))
                         .build()
