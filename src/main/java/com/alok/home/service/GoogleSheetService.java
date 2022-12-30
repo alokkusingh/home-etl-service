@@ -104,9 +104,6 @@ public class GoogleSheetService {
                 log.error("Google Sheet initialization failed with error: " + e.getMessage());
                 e.printStackTrace();
                 throw new RuntimeException(e);
-            } catch (IOException e) {
-                log.error("Google Sheet initialization stream read failed: " + e.getMessage());
-                throw new RuntimeException(e);
             }
 
 
@@ -196,29 +193,29 @@ public class GoogleSheetService {
                                         .yearx(Short.parseShort((String) row.get(0)))
                                         .monthx(Short.parseShort((String) row.get(1)))
                                         .head(InvestmentType.PF.name())
-                                        .contribution(((String) row.get(2)).length() != 0 ? 0 : Integer.parseInt((String) row.get(2)))
-                                        .valueAsOnMonth(((String) row.get(4)).length() != 0 ? 0 : Integer.parseInt((String) row.get(4)))
+                                        .contribution(((String) row.get(2)).length() == 0 ? 0 : Integer.parseInt((String) row.get(2)))
+                                        .valueAsOnMonth(((String) row.get(4)).length() == 0 ? 0 : Integer.parseInt((String) row.get(4)))
                                         .build(),
                                 Investment.builder()
                                         .yearx(Short.parseShort((String) row.get(0)))
                                         .monthx(Short.parseShort((String) row.get(1)))
                                         .head(InvestmentType.LIC.name())
-                                        .contribution(((String) row.get(5)).length() != 0 ? 0 : Integer.parseInt((String) row.get(5)))
-                                        .valueAsOnMonth(((String) row.get(7)).length() != 0 ? 0 : Integer.parseInt((String) row.get(7)))
+                                        .contribution(((String) row.get(5)).length() == 0 ? 0 : Integer.parseInt((String) row.get(5)))
+                                        .valueAsOnMonth(((String) row.get(7)).length() == 0 ? 0 : Integer.parseInt((String) row.get(7)))
                                         .build(),
                                 Investment.builder()
                                         .yearx(Short.parseShort((String) row.get(0)))
                                         .monthx(Short.parseShort((String) row.get(1)))
                                         .head(InvestmentType.NPS.name())
-                                        .contribution(((String) row.get(8)).length() != 0 ? 0 : Integer.parseInt((String) row.get(8)))
-                                        .valueAsOnMonth(((String) row.get(10)).length() != 0 ? 0 : Integer.parseInt((String) row.get(10)))
+                                        .contribution(((String) row.get(8)).length() == 0 ? 0 : Integer.parseInt((String) row.get(8)))
+                                        .valueAsOnMonth(((String) row.get(10)).length() == 0 ? 0 : Integer.parseInt((String) row.get(10)))
                                         .build(),
                                 Investment.builder()
                                         .yearx(Short.parseShort((String) row.get(0)))
                                         .monthx(Short.parseShort((String) row.get(1)))
                                         .head(InvestmentType.SHARE.name())
-                                        .contribution(((String) row.get(11)).length() != 0 ? 0 : Integer.parseInt((String) row.get(11)))
-                                        .valueAsOnMonth(((String) row.get(13)).length() != 0 ? 0 : Integer.parseInt((String) row.get(13)))
+                                        .contribution(((String) row.get(11)).length() == 0 ? 0 : Integer.parseInt((String) row.get(11)))
+                                        .valueAsOnMonth(((String) row.get(13)).length() == 0 ? 0 : Integer.parseInt((String) row.get(13)))
                                         .build()
                         )
                 )
