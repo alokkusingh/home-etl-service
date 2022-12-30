@@ -30,6 +30,7 @@ public class GoogleSheetController {
         CompletableFuture.runAsync(() -> {
             try {
                 googleSheetService.refreshTaxData();
+                googleSheetService.refreshTaxMonthlyData();
             } catch (IOException |RuntimeException e) {
                 log.error("Google Sheet refresh failed with error: " + e.getMessage());
                 e.printStackTrace();

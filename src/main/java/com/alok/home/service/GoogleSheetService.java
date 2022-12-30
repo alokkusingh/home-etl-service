@@ -2,14 +2,8 @@ package com.alok.home.service;
 
 import com.alok.home.batch.utils.Utility;
 import com.alok.home.commons.constant.InvestmentType;
-import com.alok.home.commons.model.Expense;
-import com.alok.home.commons.model.Investment;
-import com.alok.home.commons.model.OdionTransaction;
-import com.alok.home.commons.model.Tax;
-import com.alok.home.commons.repository.ExpenseRepository;
-import com.alok.home.commons.repository.InvestmentRepository;
-import com.alok.home.commons.repository.OdionTransactionRepository;
-import com.alok.home.commons.repository.TaxRepository;
+import com.alok.home.commons.model.*;
+import com.alok.home.commons.repository.*;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -30,6 +24,7 @@ import java.security.GeneralSecurityException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -40,6 +35,7 @@ public class GoogleSheetService {
     private String serviceAccountKeyFile;
     private String expenseSheetId;
     private String taxSheetRange;
+    private String taxMonthSheetRange;
     private String expenseSheetRange;
     private String investmentSheetRange;
     private Sheets sheetsService;
@@ -47,6 +43,7 @@ public class GoogleSheetService {
     private String odionTransactionsSheetRange;
     private ExpenseRepository expenseRepository;
     private TaxRepository taxRepository;
+    private TaxMonthlyRepository taxMonthlyRepository;
     private InvestmentRepository investmentRepository;
     private OdionTransactionRepository odionTransactionRepository;
 
@@ -56,24 +53,28 @@ public class GoogleSheetService {
             @Value("${file.path.service_account.key}") String serviceAccountKeyFile,
             @Value("${sheet.id.expense}") String expenseSheetId,
             @Value("${range.tax-sheet}") String taxSheetRange,
+            @Value("${range.tax-sheet-monthly}") String taxMonthSheetRange,
             @Value("${range.expense-sheet}") String expenseSheetRange,
             @Value("${range.investment-sheet}") String investmentSheetRange,
             @Value("${sheet.id.odion}") String odionSheetId,
             @Value("${range.odion.transaction}") String odionTransactionsSheetRange,
             ExpenseRepository expenseRepository,
             TaxRepository taxRepository,
+            TaxMonthlyRepository taxMonthlyRepository,
             InvestmentRepository investmentRepository,
             OdionTransactionRepository odionTransactionRepository
-    ) throws IOException, GeneralSecurityException {
+    ) {
         this.serviceAccountKeyFile = serviceAccountKeyFile;
         this.expenseSheetId = expenseSheetId;
         this.taxSheetRange = taxSheetRange;
+        this.taxMonthSheetRange = taxMonthSheetRange;
         this.expenseSheetRange = expenseSheetRange;
         this.investmentSheetRange = investmentSheetRange;
         this.odionSheetId = odionSheetId;
         this.odionTransactionsSheetRange = odionTransactionsSheetRange;
         this.expenseRepository = expenseRepository;
         this.taxRepository = taxRepository;
+        this.taxMonthlyRepository = taxMonthlyRepository;
         this.investmentRepository = investmentRepository;
 
 //        InputStream inputStream = new FileInputStream(serviceAccountKeyFile); // put your service account's key.json file in asset folder.
@@ -154,6 +155,26 @@ public class GoogleSheetService {
         log.info("Number of transactions: {}", records.size());
         taxRepository.deleteAll();
         taxRepository.saveAll(records);
+    }
+
+    public void refreshTaxMonthlyData() throws IOException {
+        initSheetService();
+        ValueRange response = sheetsService.spreadsheets().values()
+                .get(expenseSheetId, taxMonthSheetRange)
+                .execute();
+
+        List<TaxMonthly> records = Optional.ofNullable(response.getValues()).orElse(Collections.emptyList()).stream()
+                .filter(row -> row.get(1) != null && ((String) row.get(1)).length() != 0)
+                .map(row -> TaxMonthly.builder()
+                        .yearMonth(YearMonth.parse((String)row.get(0)))
+                        .paidAmount(Integer.parseInt((String) row.get(1)))
+                        .build()
+                )
+                .toList();
+
+        log.info("Number of transactions: {}", records.size());
+        taxMonthlyRepository.deleteAll();
+        taxMonthlyRepository.saveAll(records);
     }
 
     public void refreshExpenseData() throws IOException {
