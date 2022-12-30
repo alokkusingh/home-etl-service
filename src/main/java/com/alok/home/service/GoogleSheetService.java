@@ -164,7 +164,7 @@ public class GoogleSheetService {
                 .execute();
 
         List<TaxMonthly> records = Optional.ofNullable(response.getValues()).orElse(Collections.emptyList()).stream()
-                .filter(row -> row.get(1) != null && ((String) row.get(1)).length() != 0)
+                .filter(row -> row.size() > 1)
                 .map(row -> TaxMonthly.builder()
                         .yearMonth(YearMonth.parse((String)row.get(0)))
                         .paidAmount(Integer.parseInt((String) row.get(1)))
