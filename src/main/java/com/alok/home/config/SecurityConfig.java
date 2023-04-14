@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.SecurityFilterChain;
@@ -26,6 +27,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.util.Set;
 
 
 @Slf4j
@@ -47,7 +49,7 @@ public class SecurityConfig {
                 .addFilterBefore(customAuthFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/actuator", "/actuator/**").permitAll();
-                    auth.requestMatchers("/gsheet/**").hasAnyRole("ADMIN", "USER");
+                    auth.requestMatchers("/gsheet/**").hasAnyRole("ADMIN", "USER", "LOCALHOST");
 
                     auth.requestMatchers("/report", "/report/**").hasAnyRole("ADMIN");
                     auth.requestMatchers("/file", "/file/**").hasAnyRole("ADMIN");
@@ -67,7 +69,19 @@ public class SecurityConfig {
             RequestBody body = RequestBody.create(mediaType, "");
 
             @Override
-            protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+            protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                            FilterChain filterChain) throws ServletException, IOException {
+
+                if ("localhost".equals(request.getHeader("host").split(":")[0])) {
+                    SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                            "localhost", null,
+                            Set.of(new SimpleGrantedAuthority("ROLE_LOCALHOST"))
+                    ));
+
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
                 final String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
                 if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
                     filterChain.doFilter(request, response);
