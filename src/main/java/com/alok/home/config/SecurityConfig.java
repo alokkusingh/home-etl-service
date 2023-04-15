@@ -73,10 +73,13 @@ public class SecurityConfig {
                                             FilterChain filterChain) throws ServletException, IOException {
 
                 if ("localhost".equals(request.getHeader("host").split(":")[0])) {
-                    SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
-                            "localhost", null,
-                            Set.of(new SimpleGrantedAuthority("ROLE_LOCALHOST"))
-                    ));
+                    SecurityContextHolder.getContext().setAuthentication(
+                            new UsernamePasswordAuthenticationToken(
+                            "localhost",
+                                    null,
+                                    Set.of(new SimpleGrantedAuthority("ROLE_LOCALHOST"))
+                            )
+                    );
 
                     filterChain.doFilter(request, response);
                     return;
@@ -107,7 +110,7 @@ public class SecurityConfig {
                     userInfo = objectMapper.readValue(authResponse.body().string(), UserInfo.class);
                 } catch (RuntimeException | ConnectException rte) {
                     rte.printStackTrace();
-                    log.error("Error: Auth APi call failed");
+                    log.error("Error: Auth API call failed");
                     throw rte;
                 }
 
@@ -129,5 +132,4 @@ public class SecurityConfig {
             }
         };
     }
-
 }
