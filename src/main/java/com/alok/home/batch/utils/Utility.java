@@ -25,7 +25,9 @@ public class Utility {
                 "Fuel", Arrays.asList("fuel", "petrol", "patrol", "engine oil", "diesel")
         );
         categoryStringMap.put(
-                "Automotive", Arrays.asList("car service", "byke service", "puncture", "car lights", "scottie", "byke")
+                "Automotive", Arrays.asList("car service", "byke service", "puncture", "car lights", "scottie", "byke",
+                        "scooter", "car cleaning", "car duster"
+                )
         );
         categoryStringMap.put(
                 "Milk", Arrays.asList("milk", "doodh")
@@ -68,7 +70,8 @@ public class Utility {
                         "biscuit", "deodorant", "jamun", "mango", "retail", "finger", "grossary",
                         "tissue", "ladoo", "fruits", "shampoo", "fruit", "sugar", "groceries",
                         "grocerie", "grocery", "coconut", "sanitizer", "sanitiser", "puja samagri",
-                        "nariyal", "pediasure", "pickle", "gobhi", "sabzi"
+                        "nariyal", "pediasure", "pickle", "gobhi", "sabzi", "flower", "atta", "onion",
+                        "garlic", "bread", "yogart", "yogurt", "mop", "juice", "cleanser"
                 )
         );
         categoryStringMap.put(
@@ -86,7 +89,8 @@ public class Utility {
         categoryStringMap.put(
                 "Grooming", Arrays.asList("grooming", "parlor", "facial", "Manicure", "hair", "pedicure",
                         "cream", "kaya", "lotion", "urban clap", "saloon", "makeup", "trimmer", "parlour",
-                        "cosmetics", "cosmetic", "facepack", "make up", "face pack", "face wash")
+                        "cosmetics", "cosmetic", "facepack", "make up", "face pack", "face wash", "body wash",
+                        "facewash", "lipstick", "moisturizer")
         );
         categoryStringMap.put(
                 "Gift", Arrays.asList("bablu", "gift", "rakhi", "donation")
@@ -106,7 +110,7 @@ public class Utility {
                         "room heater", "mixer", "watch", "steriliser")
         );
         categoryStringMap.put(
-                "Electronics", Arrays.asList("mobile", "laptop", "iphone", "macbook", "smart watch")
+                "Electronics", Arrays.asList("mobile", "laptop", "iphone", "macbook", "smart watch", "fan", "electronic")
         );
         categoryStringMap.put(
                 "Other", Arrays.asList("warmer")
@@ -126,7 +130,8 @@ public class Utility {
     static public boolean isFamilyTransaction(String transation) {
         if (transation.toLowerCase().matches(".*ramawatar.*|.*avinash.*|.*avin.*|.*gopal.*|.*papa.*|.*31987667084.*|.*punbx0113.*" +
                 "|.*3209010000019.*|.*kharagpur.*|.*mb hr.*|.*kumari  jyoti.*|.*pankaj  kumar.*|.*bihar.*" +
-                "|.*yogendra  narayan.*|.*shailendra  singh.*|.*manju  devi.*|.*vivekanand  singh.*")) {
+                "|.*yogendra  narayan.*|.*shailendra  singh.*|.*manju  devi.*|.*vivekanand  singh.*|.*shailendra  sin.*")) {
+
             if (!transation.toLowerCase().matches(".*rachna.*|.*withdrawal.*|.*9916661247@.*|.*interest.*|" +
                     ".*monthly  principal  payment.*|.*gopal  rao.*|.*int  payment  for.*|.*blocked.released.*"
             )) {
