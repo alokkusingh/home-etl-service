@@ -52,7 +52,7 @@ public class Utility {
                 "Food Outside", Arrays.asList("food", "pizza", "burger", "swigy", "lunch", "dinner",
                         "breakfast", "snax", "sweets", "restaurant", "idli", "southin", "party",
                         "kachori", "cookies", "dosa", "chai", "gabbar", "sanx", "vada", "mc donald",
-                        "picnic", "kfc", "food", "laddoo", "beer", "wine", "vodka", "water", "cake",
+                        "picnic", "kfc", "food", "laddoo", "beer", "wine", "vodka", "cake",
                         "sweet", "icecream", "snacks")
         );
         categoryStringMap.put(
@@ -71,7 +71,7 @@ public class Utility {
                         "tissue", "ladoo", "fruits", "shampoo", "fruit", "sugar", "groceries",
                         "grocerie", "grocery", "coconut", "sanitizer", "sanitiser", "puja samagri",
                         "nariyal", "pediasure", "pickle", "gobhi", "sabzi", "atta", "onion",
-                        "garlic", "bread", "yogart", "yogurt", "mop", "juice", "cleanser"
+                        "garlic", "bread", "yogart", "yogurt", "mop", "juice", "cleanser", "water"
                 )
         );
         categoryStringMap.put(
