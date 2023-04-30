@@ -70,7 +70,7 @@ public class Utility {
                         "biscuit", "deodorant", "jamun", "mango", "retail", "finger", "grossary",
                         "tissue", "ladoo", "fruits", "shampoo", "fruit", "sugar", "groceries",
                         "grocerie", "grocery", "coconut", "sanitizer", "sanitiser", "puja samagri",
-                        "nariyal", "pediasure", "pickle", "gobhi", "sabzi", "flower", "atta", "onion",
+                        "nariyal", "pediasure", "pickle", "gobhi", "sabzi", "atta", "onion",
                         "garlic", "bread", "yogart", "yogurt", "mop", "juice", "cleanser"
                 )
         );
