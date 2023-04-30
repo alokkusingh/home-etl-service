@@ -3,6 +3,7 @@ package com.alok.home.service;
 import com.alok.home.commons.exception.FileStorageException;
 import com.alok.home.commons.constant.UploadType;
 import com.alok.home.commons.exception.UploadTypeNotSupportedException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -16,6 +17,9 @@ import java.nio.file.StandardCopyOption;
 
 @Service
 public class FileStorageService {
+
+    @Value("${file.path.base.dir}")
+    private String baseDir;
 
     @Value("${dir.path.kotak_account.imported}")
     private String kotakImportedLocation;
@@ -31,6 +35,9 @@ public class FileStorageService {
 
     @Value("${dir.path.investment}")
     private String investmentDirLocation;
+
+    @Autowired
+    private GitHubService gitHubService;
 
     private Path getStoragePath(UploadType uploadType) {
         return switch(uploadType) {
@@ -68,6 +75,8 @@ public class FileStorageService {
             // Copy file to the target location (Replacing existing file with the same name)
             Path targetLocation = storageLocationPath.resolve(fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+
+            gitHubService.uploadFile(targetLocation.toString().replace(baseDir, ""), file.getBytes(), "Added via ETL job");
 
             return fileName;
         } catch (IOException ex) {
