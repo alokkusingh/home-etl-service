@@ -56,7 +56,7 @@ public class Utility {
                         "breakfast", "snax", "sweets", "restaurant", "idli", "southin", "party",
                         "kachori", "cookies", "dosa", "chai", "gabbar", "sanx", "vada", "mc donald",
                         "picnic", "kfc", "food", "laddoo", "beer", "wine", "vodka", "cake",
-                        "sweet", "icecream", "snacks")
+                        "sweet", "icecream", "snacks", "laddu")
         );
         categoryStringMap.put(
                 "Accessories", Arrays.asList("accessories", "hoodie", "necklace", "sunglasses", "t-shirt",
@@ -74,12 +74,14 @@ public class Utility {
                         "tissue", "ladoo", "fruits", "shampoo", "fruit", "sugar", "groceries",
                         "grocerie", "grocery", "coconut", "sanitizer", "sanitiser", "puja samagri",
                         "nariyal", "pediasure", "pickle", "gobhi", "sabzi", "atta", "onion",
-                        "garlic", "bread", "yogart", "yogurt", "mop", "juice", "cleanser", "water"
+                        "garlic", "bread", "yogart", "yogurt", "mop", "juice", "cleanser", "water",
+                        "Jaggery"
                 )
         );
         categoryStringMap.put(
                 "Education", Arrays.asList("book", "pen", "exam", "xerox", "copy", "tution", "unacedmy",
-                        "ugc", "form", "economics", "aws", "stationary", "unacademy", "education")
+                        "ugc", "form", "economics", "aws", "stationary", "unacademy", "education", "school",
+                        "tifin box", "tuition")
         );
         categoryStringMap.put(
                 "Medical", Arrays.asList("medical", "medicine", "test", "doctor", "colombia", "scan",
