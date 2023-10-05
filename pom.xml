@@ -25,7 +25,7 @@
 		<dependency>
 			<groupId>com.alok.home</groupId>
 			<artifactId>home-commons</artifactId>
-			<version>1.7.0</version>
+			<version>1.10.0</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.github.librepdf/openpdf -->
 		<dependency>
