@@ -4,6 +4,7 @@ import com.alok.home.batch.utils.Utility;
 import com.alok.home.commons.constant.InvestmentType;
 import com.alok.home.commons.model.*;
 import com.alok.home.commons.repository.*;
+import com.alok.home.grpc.ExpenseCategorizerClient;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -14,6 +15,7 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
@@ -47,6 +49,8 @@ public class GoogleSheetService {
     private InvestmentRepository investmentRepository;
     private OdionTransactionRepository odionTransactionRepository;
 
+    private ExpenseCategorizerClient expenseCategorizerClient;
+
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
 
     public GoogleSheetService(
@@ -62,8 +66,8 @@ public class GoogleSheetService {
             TaxRepository taxRepository,
             TaxMonthlyRepository taxMonthlyRepository,
             InvestmentRepository investmentRepository,
-            OdionTransactionRepository odionTransactionRepository
-    ) {
+            OdionTransactionRepository odionTransactionRepository,
+            ExpenseCategorizerClient expenseCategorizerClient) {
         this.serviceAccountKeyFile = serviceAccountKeyFile;
         this.expenseSheetId = expenseSheetId;
         this.taxSheetRange = taxSheetRange;
@@ -93,6 +97,7 @@ public class GoogleSheetService {
 //                .setApplicationName("Home Stack")
 //                .build();
         this.odionTransactionRepository = odionTransactionRepository;
+        this.expenseCategorizerClient = expenseCategorizerClient;
     }
 
     private void initSheetService() {
@@ -194,6 +199,7 @@ public class GoogleSheetService {
                         .yearx(row.get(4) == null? 0:Integer.parseInt((String) row.get(4)))
                         .monthx(row.get(5) == null? 0:Integer.parseInt((String) row.get(5)))
                         .category(Utility.getExpenseCategory((String) row.get(1), row.get(3) == null? "": (String) row.get(3)))
+                        //.category(row.get(3) == null? "": expenseCategorizerClient.getExpenseCategory((String) row.get(3)))
                         .build()
                 )
                 .toList();
