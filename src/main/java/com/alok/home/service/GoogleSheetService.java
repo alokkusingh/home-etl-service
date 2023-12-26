@@ -198,8 +198,8 @@ public class GoogleSheetService {
                         .comment(row.get(3) == null? "": (String) row.get(3))
                         .yearx(row.get(4) == null? 0:Integer.parseInt((String) row.get(4)))
                         .monthx(row.get(5) == null? 0:Integer.parseInt((String) row.get(5)))
-                        .category(Utility.getExpenseCategory((String) row.get(1), row.get(3) == null? "": (String) row.get(3)))
-                        //.category(row.get(3) == null? "": expenseCategorizerClient.getExpenseCategory((String) row.get(3)))
+                        //.category(Utility.getExpenseCategory((String) row.get(1), row.get(3) == null? "": (String) row.get(3)))
+                        .category(row.get(1) == null? "": expenseCategorizerClient.getExpenseCategory((String) row.get(1)))
                         .build()
                 )
                 .toList();
