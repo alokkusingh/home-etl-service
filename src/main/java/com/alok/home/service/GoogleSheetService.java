@@ -244,6 +244,13 @@ public class GoogleSheetService {
                                         .head(InvestmentType.SHARE.name())
                                         .contribution(((String) row.get(11)).length() == 0 ? 0 : Integer.parseInt((String) row.get(11)))
                                         .valueAsOnMonth(((String) row.get(13)).length() == 0 ? 0 : Integer.parseInt((String) row.get(13)))
+                                        .build(),
+                                Investment.builder()
+                                        .yearx(Short.parseShort((String) row.get(0)))
+                                        .monthx(Short.parseShort((String) row.get(1)))
+                                        .head(InvestmentType.MF.name())
+                                        .contribution(((String) row.get(14)).length() == 0 ? 0 : Integer.parseInt((String) row.get(14)))
+                                        .valueAsOnMonth(((String) row.get(16)).length() == 0 ? 0 : Integer.parseInt((String) row.get(16)))
                                         .build()
                         )
                 )
