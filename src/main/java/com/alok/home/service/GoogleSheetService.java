@@ -218,11 +218,10 @@ public class GoogleSheetService {
 
         AtomicInteger count = new AtomicInteger();
 
-        return Flux.fromIterable(Optional.ofNullable(
-                        sheetsService.spreadsheets().values()
-                                .get(expenseSheetId, expenseSheetRange)
-                                .execute().getValues()
-                ).orElse(Collections.emptyList()))
+        return Flux.fromIterable(
+                    Optional.ofNullable(sheetsService.spreadsheets().values().get(expenseSheetId, expenseSheetRange).execute().getValues())
+                            .orElse(Collections.emptyList())
+                )
                 .filter(row -> row.get(2) != null && !((String) row.get(2)).isEmpty())
                 .map(row -> Expense.builder()
                         .date(parseToDate((String) row.get(0)))
