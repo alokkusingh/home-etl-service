@@ -49,7 +49,7 @@ public class SecurityConfig {
                 .addFilterBefore(customAuthFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/actuator", "/actuator/**").permitAll();
-                    auth.requestMatchers("/gsheet/**").hasAnyRole("ADMIN", "USER", "LOCALHOST");
+                    auth.requestMatchers("/gsheet/**").hasAnyRole("ADMIN", "USER", "LOCALHOST", "home_api_rw");
 
                     auth.requestMatchers("/report", "/report/**").hasAnyRole("ADMIN");
                     auth.requestMatchers("/file", "/file/**").hasAnyRole("ADMIN");
@@ -91,6 +91,7 @@ public class SecurityConfig {
                     return;
                 }
 
+                // TODO: based on issuer select the google or home-stack-auth authenticator
                 // Get jwt token and validate
                 Request authRequest = new Request.Builder()
                         .url(authUrl)

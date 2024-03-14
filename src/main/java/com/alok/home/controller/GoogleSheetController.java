@@ -3,10 +3,12 @@ package com.alok.home.controller;
 import com.alok.home.service.GoogleSheetService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.CacheControl;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -59,6 +61,17 @@ public class GoogleSheetController {
         return ResponseEntity.accepted()
                 .cacheControl(CacheControl.maxAge(REFRESH_CASH_CONTROL, TimeUnit.SECONDS).noTransform().mustRevalidate())
                 .body("Refresh submitted");
+    }
+
+    @GetMapping(value = "/refresh/expense", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> refreshExpenseDataStream() throws IOException {
+
+        return googleSheetService.refreshExpenseDataStream();
+
+//        return ResponseEntity.accepted()
+//                .cacheControl(CacheControl.maxAge(REFRESH_CASH_CONTROL, TimeUnit.SECONDS).noTransform().mustRevalidate())
+//                .body("Refresh submitted");
+
     }
 
     @GetMapping("/refresh/investment")

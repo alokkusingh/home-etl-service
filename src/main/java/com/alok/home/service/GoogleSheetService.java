@@ -1,6 +1,5 @@
 package com.alok.home.service;
 
-import com.alok.home.batch.utils.Utility;
 import com.alok.home.commons.constant.InvestmentType;
 import com.alok.home.commons.model.*;
 import com.alok.home.commons.repository.*;
@@ -15,8 +14,10 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,10 +26,12 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
@@ -207,6 +210,44 @@ public class GoogleSheetService {
         log.info("Number of transactions: {}", records.size());
         expenseRepository.deleteAll();
         expenseRepository.saveAll(records);
+    }
+
+    public Flux<String> refreshExpenseDataStream() throws IOException {
+        initSheetService();
+        expenseRepository.deleteAll();
+
+        AtomicInteger count = new AtomicInteger();
+
+        return Flux.fromIterable(Optional.ofNullable(
+                        sheetsService.spreadsheets().values()
+                                .get(expenseSheetId, expenseSheetRange)
+                                .execute().getValues()
+                ).orElse(Collections.emptyList()))
+                .filter(row -> row.get(2) != null && !((String) row.get(2)).isEmpty())
+                .map(row -> Expense.builder()
+                        .date(parseToDate((String) row.get(0)))
+                        .head((String) row.get(1))
+                        .amount(Double.parseDouble((String) row.get(2)))
+                        .comment(row.get(3) == null ? "" : (String) row.get(3))
+                        .yearx(row.get(4) == null ? 0 : Integer.parseInt((String) row.get(4)))
+                        .monthx(row.get(5) == null ? 0 : Integer.parseInt((String) row.get(5)))
+                        .category(row.get(1) == null ? "" : expenseCategorizerClient.getExpenseCategory((String) row.get(1)))
+                        .build()
+                )
+                .map(expense -> {
+                    expenseRepository.save(expense);
+                    log.info(count.toString());
+                    return count.incrementAndGet();
+                })
+                .map(Object::toString);
+//                .subscribe(
+//                        expense -> {
+//                            log.info(expense.getCategory());
+//                            count.incrementAndGet();
+//                            expenseRepository.save(expense);
+//                        }
+//                );
+
     }
 
     public void refreshInvestmentData() throws IOException {

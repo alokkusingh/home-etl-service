@@ -52,3 +52,9 @@ docker run -v /home/alok/data/git/BankStatements:/Users/aloksingh/BankStatements
 --spring.datasource.hikari.connection-timeout=20000 --spring.datasource.hikari.maximum-pool-size=10 --spring.datasource.hikari.idle-timeout=10000 \
 --pring.datasource.hikari.max-lifetime=1000 --spring.datasource.hikari.auto-commit=true
 ```
+```shell
+curl --location 'http://localhost:8081/home/etl/gsheet/refresh/expense' --header 'Accept: text/event-stream;charset=UTF-8'
+```
+```shell
+curl --location 'http://localhost:8081/home/etl/gsheet/refresh/expense'
+```
