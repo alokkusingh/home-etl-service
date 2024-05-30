@@ -45,6 +45,7 @@ public class JobExecutorOfBankService {
     private final Job kotakBankNoPwdJob;
     private final Job kotakImportedAccountJob;
     private final Job kotakImportedAccountJobV2;
+    private final Job kotakImportedAccountJobV3;
     private final Job hdfcImportedAccountJob;
     private final MultiResourceItemReader<Transaction> hdfcImportedItemsReader;
     private final MultiResourceItemReader<Transaction> kotakImportedItemsReaderV2;
@@ -67,6 +68,7 @@ public class JobExecutorOfBankService {
             @Qualifier("KotakBankNoPwdJob") Job kotakBankNoPwdJob,
             @Qualifier("KotakImportedAccountJob") Job kotakImportedAccountJob,
             @Qualifier("KotakImportedAccountJobV2") Job kotakImportedAccountJobV2,
+            @Qualifier("KotakImportedAccountJobV3") Job kotakImportedAccountJobV3,
             @Qualifier("HDFCImportedAccountJob") Job hdfcImportedAccountJob,
             MultiResourceItemReader<Transaction> hdfcImportedItemsReader,
             MultiResourceItemReader<Transaction> kotakImportedItemsReaderV2,
@@ -86,6 +88,7 @@ public class JobExecutorOfBankService {
         this.kotakBankNoPwdJob = kotakBankNoPwdJob;
         this.kotakImportedAccountJob = kotakImportedAccountJob;
         this.kotakImportedAccountJobV2 = kotakImportedAccountJobV2;
+        this.kotakImportedAccountJobV3 = kotakImportedAccountJobV3;
         this.hdfcImportedAccountJob = hdfcImportedAccountJob;
         this.hdfcImportedItemsReader = hdfcImportedItemsReader;
         this.kotakImportedItemsReaderV2 = kotakImportedItemsReaderV2;
@@ -188,6 +191,13 @@ public class JobExecutorOfBankService {
 
         MDC.put(MDCKey.BANK.name(), Bank.KOTAK.name());
         jobLauncher.run(kotakImportedAccountJobV2, new JobParametersBuilder()
+                .addString(JobConstants.JOB_ID, String.valueOf(System.currentTimeMillis()))
+                .addString(JobConstants.BATCH_OF, BatchOf.KOTAK_BANK.name())
+                .toJobParameters());
+        MDC.remove(MDCKey.BANK.name());
+
+        MDC.put(MDCKey.BANK.name(), Bank.KOTAK.name());
+        jobLauncher.run(kotakImportedAccountJobV3, new JobParametersBuilder()
                 .addString(JobConstants.JOB_ID, String.valueOf(System.currentTimeMillis()))
                 .addString(JobConstants.BATCH_OF, BatchOf.KOTAK_BANK.name())
                 .toJobParameters());

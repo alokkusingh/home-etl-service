@@ -52,7 +52,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/gsheet/**").hasAnyRole("ADMIN", "USER", "LOCALHOST", "home_api_rw");
 
                     auth.requestMatchers("/report", "/report/**").hasAnyRole("ADMIN");
-                    auth.requestMatchers("/file", "/file/**").hasAnyRole("ADMIN");
+                    auth.requestMatchers("/file", "/file/**").hasAnyRole("ADMIN", "LOCALHOST");
 
                     auth.anyRequest().authenticated();
                 })

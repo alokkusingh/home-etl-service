@@ -10,7 +10,8 @@ public class BankUtils {
 
     public enum LineMapperType {
         KOTAK,
-        HDFC
+        HDFC,
+        KOTAK_V3
     }
 
     public static LineMapper<Transaction> importedAccountLineMapper(String[] fieldNames, LineMapperType lineMapperType) {
@@ -27,6 +28,9 @@ public class BankUtils {
             fieldSetMapper = new KotakImportedFieldSetMapper();
         else if (lineMapperType == LineMapperType.HDFC)
             fieldSetMapper = new HDFCImportedFieldSetMapper();
+        else if (lineMapperType == LineMapperType.KOTAK_V3) {
+            fieldSetMapper = new KotakImportedV3FieldSetMapper();
+        }
 
         defaultLineMapper.setLineTokenizer(lineTokenizer);
         defaultLineMapper.setFieldSetMapper(fieldSetMapper);

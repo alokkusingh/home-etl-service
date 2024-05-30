@@ -12,4 +12,4 @@ EXPOSE 8081
 WORKDIR /opt
 # Removed sprint porfiles from here, isnted it will be set using configMap in Kueberenetes
 #ENTRYPOINT ["java","-Djava.security.egd=file:/dev/urandom","-Dspring.profiles.active=prod,mqtt","-jar","/opt/app.jar"]
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/urandom","-jar","/opt/app.jar"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/urandom","-jar","/opt/app.jar","-XX:+PrintFlagsFinal","-XX:MaxRAMPercentage=85"]

@@ -36,7 +36,7 @@ public class CSVReader<T> extends FlatFileItemReader<T> {
         log.info("Started Processing File: {}", resource);
         List<ProcessedFile> processedFile = processedFileRepository.findAllByName(resource.getFilename());
         if (!processedFile.isEmpty()) {
-            log.warn("File already processed - skipping!");
+            log.warn("CSV File already processed - skipping!");
             return;
         }
         super.open(executionContext);

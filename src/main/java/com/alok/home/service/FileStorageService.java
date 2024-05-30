@@ -24,6 +24,9 @@ public class FileStorageService {
     @Value("${dir.path.kotak_account.imported}")
     private String kotakImportedLocation;
 
+    @Value("${dir.path.kotak_account.imported.v3}")
+    private String kotakImportedV3Location;
+
     @Value("${dir.path.hdfc_account.imported}")
     private String hdfcImportedLocation;
 
@@ -41,7 +44,7 @@ public class FileStorageService {
 
     private Path getStoragePath(UploadType uploadType) {
         return switch(uploadType) {
-            case KotakExportedStatement -> Paths.get(kotakImportedLocation).toAbsolutePath().normalize() ;
+            case KotakExportedStatement -> Paths.get(kotakImportedV3Location).toAbsolutePath().normalize() ;
             case HDFCExportedStatement -> Paths.get(hdfcImportedLocation).toAbsolutePath().normalize();
             case ExpenseGoogleSheet -> Paths.get(expenseDirLocation).toAbsolutePath().normalize();
             case TaxGoogleSheet -> Paths.get(taxDirLocation).toAbsolutePath().normalize();
