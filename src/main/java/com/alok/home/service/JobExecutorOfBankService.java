@@ -49,6 +49,7 @@ public class JobExecutorOfBankService {
     private final Job hdfcImportedAccountJob;
     private final MultiResourceItemReader<Transaction> hdfcImportedItemsReader;
     private final MultiResourceItemReader<Transaction> kotakImportedItemsReaderV2;
+    private final MultiResourceItemReader<Transaction> kotakImportedItemsReaderV3;
     private final FlatFileItemWriter<Transaction> csvWriterForGoogleSheet;
     private final TransactionRepository transactionRepository;
     private final String outputFileName;
@@ -58,7 +59,7 @@ public class JobExecutorOfBankService {
             JobLauncher jobLauncher,
             ResourceLoader resourceLoader,
             @Value("${dir.path.hdfc_account.imported}")String hdfcExportDir,
-            @Value("${dir.path.kotak_account.imported}") String kotakExportDir,
+            @Value("${dir.path.kotak_account.imported.v3}") String kotakExportDir,
             @Value("${file.export.google.sheet}") String outputFileName,
             @Qualifier("MissingAccountJob") Job missingAccountJob,
             @Qualifier("CitiBankJob1") Job citiBankJob1,
@@ -72,6 +73,7 @@ public class JobExecutorOfBankService {
             @Qualifier("HDFCImportedAccountJob") Job hdfcImportedAccountJob,
             MultiResourceItemReader<Transaction> hdfcImportedItemsReader,
             MultiResourceItemReader<Transaction> kotakImportedItemsReaderV2,
+            MultiResourceItemReader<Transaction> kotakImportedItemsReaderV3,
             FlatFileItemWriter<Transaction> csvWriterForGoogleSheet,
             TransactionRepository transactionRepository
 
@@ -92,6 +94,7 @@ public class JobExecutorOfBankService {
         this.hdfcImportedAccountJob = hdfcImportedAccountJob;
         this.hdfcImportedItemsReader = hdfcImportedItemsReader;
         this.kotakImportedItemsReaderV2 = kotakImportedItemsReaderV2;
+        this.kotakImportedItemsReaderV3 = kotakImportedItemsReaderV3;
         this.csvWriterForGoogleSheet = csvWriterForGoogleSheet;
         this.transactionRepository = transactionRepository;
         // outputFileName was required injection via constructor otherwise it was coming null
@@ -108,10 +111,10 @@ public class JobExecutorOfBankService {
         switch(uploadType) {
             case KotakExportedStatement -> {
                 MDC.put(MDCKey.BANK.name(), Bank.KOTAK.name());
-                kotakImportedItemsReaderV2.setResources(new Resource[]{
+                kotakImportedItemsReaderV3.setResources(new Resource[]{
                         resourceLoader.getResource("file:" + kotakExportDir + "/" + fileName)
                 });
-                jobLauncher.run(kotakImportedAccountJobV2, new JobParametersBuilder()
+                jobLauncher.run(kotakImportedAccountJobV3, new JobParametersBuilder()
                         .addString(JobConstants.JOB_ID, String.valueOf(System.currentTimeMillis()))
                         .addString("batchOf", BatchOf.KOTAK_BANK.name())
                         .toJobParameters());
