@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class GoogleSheetController {
 
     private GoogleSheetService googleSheetService;
-    private static final int REFRESH_CASH_CONTROL = 3000;
+    private static final int REFRESH_CASH_CONTROL = 120;
 
     public GoogleSheetController(GoogleSheetService googleSheetService) {
         this.googleSheetService = googleSheetService;
