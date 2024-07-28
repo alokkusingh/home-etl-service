@@ -50,6 +50,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/actuator", "/actuator/**").permitAll();
                     auth.requestMatchers("/gsheet/**").hasAnyRole("ADMIN", "USER", "LOCALHOST", "home_api_rw");
+                    auth.requestMatchers("/form/**").hasAnyRole("ADMIN", "USER", "LOCALHOST", "home_api_rw");
 
                     auth.requestMatchers("/report", "/report/**").hasAnyRole("ADMIN");
                     auth.requestMatchers("/file", "/file/**").hasAnyRole("ADMIN", "LOCALHOST");
