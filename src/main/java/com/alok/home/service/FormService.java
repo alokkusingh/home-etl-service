@@ -85,8 +85,8 @@ public class FormService {
                 OdionTransaction.builder()
                         .date(LocalDate.now())
                         .particular(estateForm.particular())
-                        .debitAccount(OdionTransaction.Account.valueOf(estateForm.debitFrom()))
-                        .creditAccount(OdionTransaction.Account.valueOf(estateForm.creditTo()))
+                        .debitAccount(OdionTransaction.Account.valueOfOrDefault(estateForm.debitFrom()))
+                        .creditAccount(OdionTransaction.Account.valueOfOrDefault(estateForm.creditTo()))
                         .amount(estateForm.amount())
                         .build()
         );
