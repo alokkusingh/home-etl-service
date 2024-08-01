@@ -1,5 +1,6 @@
 package com.alok.home.controller;
 
+import com.alok.home.response.GenericResponse;
 import com.alok.home.service.GoogleSheetService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.CacheControl;
@@ -27,7 +28,7 @@ public class GoogleSheetController {
     }
 
     @GetMapping("/refresh/tax")
-    public ResponseEntity<String> refreshTaxData() {
+    public ResponseEntity<GenericResponse> refreshTaxData() {
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -42,11 +43,14 @@ public class GoogleSheetController {
 
         return ResponseEntity.accepted()
                 .cacheControl(CacheControl.maxAge(REFRESH_CASH_CONTROL, TimeUnit.SECONDS).noTransform().mustRevalidate())
-                .body("Refresh submitted");
+                .body(GenericResponse.builder()
+                        .status(GenericResponse.Status.SUCCESS)
+                        .message("Refresh Submitted")
+                        .build());
     }
 
     @GetMapping("/refresh/expense")
-    public ResponseEntity<String> refreshExpenseData() throws IOException {
+    public ResponseEntity<GenericResponse> refreshExpenseData() throws IOException {
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -60,7 +64,10 @@ public class GoogleSheetController {
 
         return ResponseEntity.accepted()
                 .cacheControl(CacheControl.maxAge(REFRESH_CASH_CONTROL, TimeUnit.SECONDS).noTransform().mustRevalidate())
-                .body("Refresh submitted");
+                .body(GenericResponse.builder()
+                        .status(GenericResponse.Status.SUCCESS)
+                        .message("Refresh Submitted")
+                        .build());
     }
 
     @GetMapping(value = "/refresh/expense", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -75,7 +82,7 @@ public class GoogleSheetController {
     }
 
     @GetMapping("/refresh/investment")
-    public ResponseEntity<String> refreshInvestmentData() {
+    public ResponseEntity<GenericResponse> refreshInvestmentData() {
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -89,11 +96,14 @@ public class GoogleSheetController {
 
         return ResponseEntity.accepted()
                 .cacheControl(CacheControl.maxAge(REFRESH_CASH_CONTROL, TimeUnit.SECONDS).noTransform().mustRevalidate())
-                .body("Refresh submitted");
+                .body(GenericResponse.builder()
+                        .status(GenericResponse.Status.SUCCESS)
+                        .message("Refresh Submitted")
+                        .build());
     }
 
     @GetMapping("/refresh/odion/transactions")
-    public ResponseEntity<String> refreshOdionTransactions() {
+    public ResponseEntity<GenericResponse> refreshOdionTransactions() {
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -107,6 +117,9 @@ public class GoogleSheetController {
 
         return ResponseEntity.accepted()
                 .cacheControl(CacheControl.maxAge(REFRESH_CASH_CONTROL, TimeUnit.SECONDS).noTransform().mustRevalidate())
-                .body("Refresh submitted");
+                .body(GenericResponse.builder()
+                        .status(GenericResponse.Status.SUCCESS)
+                        .message("Refresh Submitted")
+                        .build());
     }
 }
