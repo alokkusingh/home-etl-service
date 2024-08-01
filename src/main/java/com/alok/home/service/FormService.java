@@ -50,7 +50,7 @@ public class FormService {
                         expenseFormUrl,
                         URLEncoder.encode(expenseForm.head(), StandardCharsets.UTF_8),
                         expenseForm.amount(),
-                        URLEncoder.encode(expenseForm.comment(), StandardCharsets.UTF_8)
+                        URLEncoder.encode(expenseForm.comment() == null?"":expenseForm.comment(), StandardCharsets.UTF_8)
                 ),
                 String.class
         );

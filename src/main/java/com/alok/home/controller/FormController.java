@@ -2,6 +2,7 @@ package com.alok.home.controller;
 
 import com.alok.home.model.EstateForm;
 import com.alok.home.model.ExpenseForm;
+import com.alok.home.response.GenericResponse;
 import com.alok.home.service.FormService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,24 +24,32 @@ public class FormController {
     }
 
     @PostMapping("/expense")
-    public ResponseEntity<String> submitExpenseForm(@RequestBody ExpenseForm expenseForm) throws IOException {
+    public ResponseEntity<GenericResponse> submitExpenseForm(@RequestBody ExpenseForm expenseForm) throws IOException {
 
         try {
             Assert.notNull(expenseForm.amount(), "Amount can't be null");
             Assert.notNull(expenseForm.head(), "Head can't be null");
         } catch (RuntimeException rte) {
             return ResponseEntity.badRequest()
-                    .body(rte.getMessage());
+                    .body(GenericResponse.builder()
+                        .status(GenericResponse.Status.FAILED)
+                        .message(rte.getMessage())
+                        .build()
+                    );
         }
 
         formService.submitExpenseForm(expenseForm);
 
         return ResponseEntity.ok()
-                .body("Form submitted");
+                .body(GenericResponse.builder()
+                        .status(GenericResponse.Status.SUCCESS)
+                        .message("Expense entry created")
+                        .build()
+                );
     }
 
     @PostMapping("/estate")
-    public ResponseEntity<String> submitEstateForm(@RequestBody EstateForm estateForm) throws IOException {
+    public ResponseEntity<GenericResponse> submitEstateForm(@RequestBody EstateForm estateForm) throws IOException {
 
         try {
             Assert.notNull(estateForm.amount(), "Amount can't be null");
@@ -49,13 +58,21 @@ public class FormController {
             Assert.notNull(estateForm.creditTo(), "CreditTo can't be null");
         } catch (RuntimeException rte) {
             return ResponseEntity.badRequest()
-                    .body(rte.getMessage());
+                    .body(GenericResponse.builder()
+                        .status(GenericResponse.Status.FAILED)
+                        .message(rte.getMessage())
+                        .build()
+                    );
         }
 
         formService.submitEstateForm(estateForm);
 
         return ResponseEntity.ok()
-                .body("Form submitted");
+                .body(GenericResponse.builder()
+                    .status(GenericResponse.Status.SUCCESS)
+                    .message("Transaction entry created")
+                    .build()
+                );
     }
 
 }
