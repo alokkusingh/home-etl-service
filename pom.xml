@@ -6,7 +6,7 @@
 	<parent>
        	<groupId>org.springframework.boot</groupId>
        	<artifactId>spring-boot-starter-parent</artifactId>
-       	<version>3.0.0</version>
+       	<version>3.2.0</version>
        	<relativePath/> <!-- lookup parent from repository -->
     </parent>
 	<groupId>com.alok.home</groupId>
@@ -17,8 +17,8 @@
 
 	<properties>
 		<maven.test.skip>true</maven.test.skip>
-		<java.version>17</java.version>
-		<lombok.version>1.18.22</lombok.version>
+		<java.version>21</java.version>
+		<lombok.version>1.18.30</lombok.version>
 	</properties>
 
 	<dependencies>
@@ -68,6 +68,7 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.32</version>
 			<scope>runtime</scope>
 		</dependency>
 
@@ -177,38 +178,39 @@
 			</plugin>
 
 			<!-- compile proto file into java files. -->
-			<plugin>
-				<groupId>com.github.os72</groupId>
-				<artifactId>protoc-jar-maven-plugin</artifactId>
-				<version>3.6.0.1</version>
-				<executions>
-					<execution>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<includeMavenTypes>direct</includeMavenTypes>
+			<!-- not supporting for Java 21, so generated using protoc cmd -->
+<!--			<plugin>-->
+<!--				<groupId>com.github.os72</groupId>-->
+<!--				<artifactId>protoc-jar-maven-plugin</artifactId>-->
+<!--				<version>3.11.4</version>-->
+<!--				<executions>-->
+<!--					<execution>-->
+<!--						<phase>generate-sources</phase>-->
+<!--						<goals>-->
+<!--							<goal>run</goal>-->
+<!--						</goals>-->
+<!--						<configuration>-->
+<!--							<includeMavenTypes>direct</includeMavenTypes>-->
 
-							<inputDirectories>
-								<include>src/main/resources/proto</include>
-							</inputDirectories>
+<!--							<inputDirectories>-->
+<!--								<include>src/main/resources/proto</include>-->
+<!--							</inputDirectories>-->
 
-							<outputTargets>
-								<outputTarget>
-									<type>java</type>
-									<outputDirectory>src/main/java</outputDirectory>
-								</outputTarget>
-								<outputTarget>
-									<type>grpc-java</type>
-									<pluginArtifact>io.grpc:protoc-gen-grpc-java:1.15.0</pluginArtifact>
-									<outputDirectory>src/main/java</outputDirectory>
-								</outputTarget>
-							</outputTargets>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+<!--							<outputTargets>-->
+<!--								<outputTarget>-->
+<!--									<type>java</type>-->
+<!--									<outputDirectory>src/main/java</outputDirectory>-->
+<!--								</outputTarget>-->
+<!--								<outputTarget>-->
+<!--									<type>grpc-java</type>-->
+<!--									<pluginArtifact>io.grpc:protoc-gen-grpc-java:1.66.0</pluginArtifact>-->
+<!--									<outputDirectory>src/main/java</outputDirectory>-->
+<!--								</outputTarget>-->
+<!--							</outputTargets>-->
+<!--						</configuration>-->
+<!--					</execution>-->
+<!--				</executions>-->
+<!--			</plugin>-->
 		</plugins>
 	</build>
 

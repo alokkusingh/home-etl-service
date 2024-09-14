@@ -3,4 +3,5 @@
 -- delete from processed_file;
 -- delete from tax;
 -- delete from investment;
-select count(1) from processed_file;
+-- select count(1) from processed_file;
+select 1 from dual;

@@ -18,10 +18,23 @@ Home Stack ETL Service
 java -jar target/home-etl-service-1.0.0-SNAPSHOT.jar --file.path.base.dir=/home/alok/data/git/BankStatements
 ````
 
-#### Build
+### Build
+#### Set JAVA_HOME (in case mvn run through terminal)
+```shell
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home
+export PATH=$JAVA_HOME/bin:$PATH
+```
+#### Generate Proto file
+```shell
+protoc --java_out=src/main/java src/main/resources/proto/expenseCategorizer.proto
+```
+#### Generate gRPC Stub
+```shell
+protoc --plugin=protoc-gen-grpc-java=protoc-gen-grpc-java-1.66.0-osx-aarch_64.exe --grpc-java_out=src/main/java src/main/resources/proto/expenseCategorizer.proto
+```
 1. Maven Package
    ```shell
-   mvn clean package
+   mvn clean package -X
    ```
 2. Docker Build, Push & Run
    ```shell
