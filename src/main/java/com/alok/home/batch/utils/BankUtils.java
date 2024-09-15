@@ -1,6 +1,6 @@
 package com.alok.home.batch.utils;
 
-import com.alok.home.commons.model.Transaction;
+import com.alok.home.commons.entity.Transaction;
 import org.springframework.batch.item.file.LineMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;

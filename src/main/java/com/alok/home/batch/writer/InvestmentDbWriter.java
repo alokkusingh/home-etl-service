@@ -1,6 +1,6 @@
 package com.alok.home.batch.writer;
 
-import com.alok.home.commons.model.Investment;
+import com.alok.home.commons.entity.Investment;
 import com.alok.home.commons.repository.InvestmentRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.Chunk;

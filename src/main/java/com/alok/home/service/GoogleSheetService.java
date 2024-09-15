@@ -1,7 +1,7 @@
 package com.alok.home.service;
 
 import com.alok.home.commons.constant.InvestmentType;
-import com.alok.home.commons.model.*;
+import com.alok.home.commons.entity.*;
 import com.alok.home.commons.repository.*;
 import com.alok.home.grpc.ExpenseCategorizerClient;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -31,6 +31,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
@@ -146,23 +147,56 @@ public class GoogleSheetService {
     }
 
     public void refreshTaxData() throws IOException {
+
         initSheetService();
-        ValueRange response = sheetsService.spreadsheets().values()
-                .get(expenseSheetId, taxSheetRange)
-                .execute();
 
-        List<Tax> records = Optional.ofNullable(response.getValues()).orElse(Collections.emptyList()).stream()
-                .map(row -> Tax.builder()
-                        .financialYear((String) row.get(0))
-                        .paidAmount(row.size() < 2? 0: Integer.parseInt((String) row.get(1)))
-                        .refundAmount(row.size() < 3? 0: Integer.parseInt((String) row.get(2)))
-                        .build()
+        CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return sheetsService.spreadsheets().values().get(expenseSheetId, taxSheetRange).execute();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .exceptionally(ex -> {
+                    ex.printStackTrace();
+                    return null;
+                })
+                .thenApply(response -> Optional.ofNullable(response.getValues()).orElse(Collections.emptyList()).stream()
+                        .map(row -> Tax.builder()
+                                .financialYear((String) row.get(0))
+                                .paidAmount(row.size() < 2? 0: Integer.parseInt((String) row.get(1)))
+                                .refundAmount(row.size() < 3? 0: Integer.parseInt((String) row.get(2)))
+                                .build()
+                        )
+                        .toList()
                 )
-                .toList();
+                .thenApply(records -> {
+                    log.info("Number of transactions: {}", records.size());
+                    return records;
+                })
+                .thenApply(records -> {
+                    taxRepository.deleteAll();
+                    return records;
+                })
+                .thenAccept(records -> taxRepository.saveAll(records))
+                .join();
 
-        log.info("Number of transactions: {}", records.size());
-        taxRepository.deleteAll();
-        taxRepository.saveAll(records);
+//        ValueRange response = sheetsService.spreadsheets().values()
+//                .get(expenseSheetId, taxSheetRange)
+//                .execute();
+//
+//        List<Tax> records = Optional.ofNullable(response.getValues()).orElse(Collections.emptyList()).stream()
+//                .map(row -> Tax.builder()
+//                        .financialYear((String) row.get(0))
+//                        .paidAmount(row.size() < 2? 0: Integer.parseInt((String) row.get(1)))
+//                        .refundAmount(row.size() < 3? 0: Integer.parseInt((String) row.get(2)))
+//                        .build()
+//                )
+//                .toList();
+//
+//        log.info("Number of transactions: {}", records.size());
+//        taxRepository.deleteAll();
+//        taxRepository.saveAll(records);
     }
 
     public void refreshTaxMonthlyData() throws IOException {

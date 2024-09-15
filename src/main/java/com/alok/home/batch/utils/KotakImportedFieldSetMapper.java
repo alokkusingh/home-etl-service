@@ -1,6 +1,6 @@
 package com.alok.home.batch.utils;
 
-import com.alok.home.commons.model.Transaction;
+import com.alok.home.commons.entity.Transaction;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;

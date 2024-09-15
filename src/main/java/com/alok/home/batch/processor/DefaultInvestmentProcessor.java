@@ -1,8 +1,8 @@
 package com.alok.home.batch.processor;
 
 import com.alok.home.commons.constant.InvestmentType;
-import com.alok.home.commons.model.Investment;
-import com.alok.home.commons.model.RawInvestment;
+import com.alok.home.commons.entity.Investment;
+import com.alok.home.commons.entity.RawInvestment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;

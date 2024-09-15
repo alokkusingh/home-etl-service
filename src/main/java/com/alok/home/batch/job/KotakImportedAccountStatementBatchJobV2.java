@@ -1,9 +1,9 @@
 package com.alok.home.batch.job;
 
-import com.alok.home.commons.model.Transaction;
 import com.alok.home.batch.processor.FileArchiveTasklet;
 import com.alok.home.batch.reader.CSVReader;
 import com.alok.home.batch.utils.BankUtils;
+import com.alok.home.commons.entity.Transaction;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;

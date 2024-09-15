@@ -1,7 +1,7 @@
 package com.alok.home.service;
 
-import com.alok.home.commons.model.Expense;
-import com.alok.home.commons.model.OdionTransaction;
+import com.alok.home.commons.entity.Expense;
+import com.alok.home.commons.entity.OdionTransaction;
 import com.alok.home.commons.repository.ExpenseRepository;
 import com.alok.home.commons.repository.OdionTransactionRepository;
 import com.alok.home.grpc.ExpenseCategorizerClient;

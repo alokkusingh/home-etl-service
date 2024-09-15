@@ -1,8 +1,8 @@
 package com.alok.home.batch.processor;
 
-import com.alok.home.commons.model.Expense;
-import com.alok.home.commons.model.RawTransaction;
 import com.alok.home.batch.utils.Utility;
+import com.alok.home.commons.entity.Expense;
+import com.alok.home.commons.entity.RawTransaction;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
 package com.alok.home.batch.reader;
 
-import com.alok.home.commons.model.ProcessedFile;
+import com.alok.home.commons.entity.ProcessedFile;
 import com.alok.home.commons.repository.ProcessedFileRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ExecutionContext;

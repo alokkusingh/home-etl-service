@@ -1,8 +1,8 @@
 package com.alok.home.service;
 
-import com.alok.home.commons.exception.FileStorageException;
 import com.alok.home.commons.constant.UploadType;
-import com.alok.home.commons.exception.UploadTypeNotSupportedException;
+import com.alok.home.commons.dto.exception.FileStorageException;
+import com.alok.home.commons.dto.exception.UploadTypeNotSupportedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

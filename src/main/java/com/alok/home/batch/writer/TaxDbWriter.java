@@ -1,6 +1,6 @@
 package com.alok.home.batch.writer;
 
-import com.alok.home.commons.model.Tax;
+import com.alok.home.commons.entity.Tax;
 import com.alok.home.commons.repository.TaxRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.Chunk;

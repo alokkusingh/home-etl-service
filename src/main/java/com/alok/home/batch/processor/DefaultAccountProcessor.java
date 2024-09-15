@@ -1,9 +1,9 @@
 package com.alok.home.batch.processor;
 
 import com.alok.home.commons.constant.MDCKey;
-import com.alok.home.commons.model.RawTransaction;
-import com.alok.home.commons.model.Transaction;
 import com.alok.home.batch.utils.Utility;
+import com.alok.home.commons.entity.RawTransaction;
+import com.alok.home.commons.entity.Transaction;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.batch.item.ItemProcessor;

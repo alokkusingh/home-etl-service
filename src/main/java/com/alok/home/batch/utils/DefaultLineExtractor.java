@@ -1,6 +1,6 @@
 package com.alok.home.batch.utils;
 
-import com.alok.home.commons.model.RawTransaction;
+import com.alok.home.commons.entity.RawTransaction;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;

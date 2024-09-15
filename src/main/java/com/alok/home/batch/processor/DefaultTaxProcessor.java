@@ -1,6 +1,6 @@
 package com.alok.home.batch.processor;
 
-import com.alok.home.commons.model.Tax;
+import com.alok.home.commons.entity.Tax;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;

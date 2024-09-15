@@ -1,9 +1,9 @@
 package com.alok.home.batch.job;
 
-import com.alok.home.commons.model.RawTransaction;
-import com.alok.home.commons.model.Transaction;
 import com.alok.home.batch.processor.FileArchiveTasklet;
 import com.alok.home.batch.reader.PDFReader;
+import com.alok.home.commons.entity.RawTransaction;
+import com.alok.home.commons.entity.Transaction;
 import com.alok.home.commons.repository.ProcessedFileRepository;
 import com.alok.home.batch.utils.DefaultLineExtractor;
 import com.alok.home.batch.utils.LineExtractor;

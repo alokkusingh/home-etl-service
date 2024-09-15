@@ -1,6 +1,6 @@
 package com.alok.home;
 
-import com.alok.home.commons.annotation.LogExecutionTime;
+import com.alok.home.commons.utils.annotation.LogExecutionTime;
 import com.alok.home.service.JobExecutorOfBankService;
 import com.alok.home.service.JobExecutorOfExpenseService;
 import com.alok.home.service.JobExecutorOfInvestmentService;
@@ -14,9 +14,24 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@ConfigurationPropertiesScan({"com.alok.spring.mqtt.config", "com.alok.spring.config"})
+@ConfigurationPropertiesScan({
+		"com.alok.spring.mqtt.config",
+		"com.alok.spring.config",
+		"com.alok.home.commons.security.properties"
+})
 @EnableScheduling
-@SpringBootApplication
+@SpringBootApplication(
+		scanBasePackages = {
+				"com.alok.home",
+				"com.alok.home.commons.exception",
+				"com.alok.home.commons.entity",
+				"com.alok.home.commons.repository",
+				"com.alok.home.commons.utils",
+				"com.alok.home.commons.utils.annotations",
+				"com.alok.home.commons.constant",
+				"com.alok.home.commons.security"
+		}
+)
 @Slf4j
 public class HomeEtlServiceApplication implements ApplicationRunner {
 

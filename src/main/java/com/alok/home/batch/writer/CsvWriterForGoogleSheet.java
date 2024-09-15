@@ -1,6 +1,6 @@
 package com.alok.home.batch.writer;
 
-import com.alok.home.commons.model.Transaction;
+import com.alok.home.commons.entity.Transaction;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
 import org.springframework.batch.item.file.transform.DelimitedLineAggregator;

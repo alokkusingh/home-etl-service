@@ -1,7 +1,7 @@
 package com.alok.home.batch.reader;
 
-import com.alok.home.commons.model.ProcessedFile;
-import com.alok.home.commons.model.RawTransaction;
+import com.alok.home.commons.entity.ProcessedFile;
+import com.alok.home.commons.entity.RawTransaction;
 import com.alok.home.commons.repository.ProcessedFileRepository;
 import com.alok.home.batch.utils.DefaultLineExtractor;
 import com.alok.home.batch.utils.LineExtractor;

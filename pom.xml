@@ -19,13 +19,34 @@
 		<maven.test.skip>true</maven.test.skip>
 		<java.version>21</java.version>
 		<lombok.version>1.18.30</lombok.version>
+		<home.commons.version>2.0.0</home.commons.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.alok.home</groupId>
-			<artifactId>home-commons</artifactId>
-			<version>1.16.1</version>
+			<artifactId>home-commons-entity</artifactId>
+			<version>${home.commons.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alok.home</groupId>
+			<artifactId>home-commons-exception</artifactId>
+			<version>${home.commons.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alok.home</groupId>
+			<artifactId>home-commons-security</artifactId>
+			<version>${home.commons.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alok.home</groupId>
+			<artifactId>home-commons-utils</artifactId>
+			<version>${home.commons.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alok.home</groupId>
+			<artifactId>home-commons-constants</artifactId>
+			<version>${home.commons.version}</version>
 		</dependency>
 
 		<dependency>

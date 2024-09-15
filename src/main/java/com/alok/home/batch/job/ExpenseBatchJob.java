@@ -2,7 +2,7 @@ package com.alok.home.batch.job;
 
 import com.alok.home.batch.processor.FileArchiveTasklet;
 import com.alok.home.batch.reader.CSVReader;
-import com.alok.home.commons.model.Expense;
+import com.alok.home.commons.entity.Expense;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
