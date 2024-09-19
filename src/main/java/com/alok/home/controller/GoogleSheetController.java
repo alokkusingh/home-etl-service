@@ -13,6 +13,7 @@ import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -21,26 +22,35 @@ import java.util.concurrent.TimeUnit;
 public class GoogleSheetController {
 
     private GoogleSheetService googleSheetService;
+
+    private ExecutorService virtualThreadExecutorService;
     private static final int REFRESH_CASH_CONTROL = 120;
 
-    public GoogleSheetController(GoogleSheetService googleSheetService) {
+    public GoogleSheetController(GoogleSheetService googleSheetService, ExecutorService virtualThreadExecutorService) {
         this.googleSheetService = googleSheetService;
+        this.virtualThreadExecutorService = virtualThreadExecutorService;
     }
 
     @GetMapping("/refresh/tax")
-    public ResponseEntity<GenericResponse> refreshTaxData() {
+    public ResponseEntity<GenericResponse> refreshTaxData() throws IOException {
 
-        CompletableFuture.runAsync(() -> {
-            try {
-                googleSheetService.refreshTaxData();
-                googleSheetService.refreshTaxMonthlyData();
-            } catch (IOException |RuntimeException e) {
-                log.error("Google Sheet refresh failed with error: " + e.getMessage());
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
-        });
+//        CompletableFuture.runAsync(() -> {
+//            try {
+//                log.info(Thread.currentThread().toString());
+//                googleSheetService.refreshTaxData();
+//                googleSheetService.refreshTaxMonthlyData();
+//            } catch (IOException |RuntimeException e) {
+//                log.error("Google Sheet refresh failed with error: " + e.getMessage());
+//                e.printStackTrace();
+//                throw new RuntimeException(e);
+//            }
+//        }, virtualThreadExecutorService);
 
+        log.info(Thread.currentThread().toString());
+        googleSheetService.refreshTaxData();
+        googleSheetService.refreshTaxMonthlyData();
+
+        log.info(Thread.currentThread().toString());
         return ResponseEntity.accepted()
                 .cacheControl(CacheControl.maxAge(REFRESH_CASH_CONTROL, TimeUnit.SECONDS).noTransform().mustRevalidate())
                 .body(GenericResponse.builder()
@@ -52,15 +62,16 @@ public class GoogleSheetController {
     @GetMapping("/refresh/expense")
     public ResponseEntity<GenericResponse> refreshExpenseData() throws IOException {
 
-        CompletableFuture.runAsync(() -> {
-            try {
-                googleSheetService.refreshExpenseData();
-            } catch (IOException |RuntimeException e) {
-                log.error("Google Sheet refresh failed with error: " + e.getMessage());
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
-        });
+//        CompletableFuture.runAsync(() -> {
+//            try {
+//                googleSheetService.refreshExpenseData();
+//            } catch (IOException |RuntimeException e) {
+//                log.error("Google Sheet refresh failed with error: " + e.getMessage());
+//                e.printStackTrace();
+//                throw new RuntimeException(e);
+//            }
+//        }, virtualThreadExecutorService);
+        googleSheetService.refreshExpenseData();
 
         return ResponseEntity.accepted()
                 .cacheControl(CacheControl.maxAge(REFRESH_CASH_CONTROL, TimeUnit.SECONDS).noTransform().mustRevalidate())

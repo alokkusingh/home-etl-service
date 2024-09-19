@@ -16,8 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -26,12 +24,13 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
@@ -55,7 +54,9 @@ public class GoogleSheetService {
 
     private ExpenseCategorizerClient expenseCategorizerClient;
 
-    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
+    private final SimpleDateFormat simpleDateFormat;
+
+    private ExecutorService virtualThreadExecutorService;
 
     public GoogleSheetService(
             @Value("${file.path.service_account.key}") String serviceAccountKeyFile,
@@ -71,7 +72,8 @@ public class GoogleSheetService {
             TaxMonthlyRepository taxMonthlyRepository,
             InvestmentRepository investmentRepository,
             OdionTransactionRepository odionTransactionRepository,
-            ExpenseCategorizerClient expenseCategorizerClient) {
+            ExpenseCategorizerClient expenseCategorizerClient,
+            ExecutorService virtualThreadExecutorService) {
         this.serviceAccountKeyFile = serviceAccountKeyFile;
         this.expenseSheetId = expenseSheetId;
         this.taxSheetRange = taxSheetRange;
@@ -102,47 +104,60 @@ public class GoogleSheetService {
 //                .build();
         this.odionTransactionRepository = odionTransactionRepository;
         this.expenseCategorizerClient = expenseCategorizerClient;
+        this.virtualThreadExecutorService = virtualThreadExecutorService;
+        this.simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
     }
 
     private void initSheetService() {
         if (sheetsService == null) {
-            log.info("Google Sheet Service Initialized!");
-            InputStream inputStream = null; // put your service account's key.json file in asset folder.
-            try {
-                inputStream = new FileInputStream(serviceAccountKeyFile);
-            } catch (FileNotFoundException e) {
-                log.error("Google Sheet initialization failed with error: " + e.getMessage());
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
+            log.info("Google Sheet Service Initializing!");
 
-
-            GoogleCredentials googleCredentials = null;
-            try {
-                googleCredentials = GoogleCredentials.fromStream(inputStream)
-                        .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS_READONLY));
-            } catch (IOException e) {
-                log.error("Google Sheet initialization failed with error: " + e.getMessage());
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
-
-            HttpRequestInitializer requestInitializer = new HttpCredentialsAdapter(googleCredentials);
-
-            try {
-                sheetsService = new Sheets.Builder(
-                        GoogleNetHttpTransport.newTrustedTransport(),
-                        //GsonFactory.getDefaultInstance(),
-                        JacksonFactory.getDefaultInstance(),
-                        requestInitializer
-                )
-                        .setApplicationName("Home Stack")
-                        .build();
-            } catch (GeneralSecurityException | IOException | RuntimeException e) {
-                log.error("Google Sheet initialization failed with error: " + e.getMessage());
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
+            CompletableFuture.supplyAsync(() -> {
+                try {
+                    log.info(Thread.currentThread().toString());
+                    log.info("Reading credentials file");
+                    return new FileInputStream(serviceAccountKeyFile);
+                } catch (FileNotFoundException e) {
+                    log.error("Google Sheet initialization failed with error: " + e.getMessage());
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+            }, virtualThreadExecutorService)
+                    .exceptionally(ex -> {
+                        ex.printStackTrace();
+                        return null;
+                    })
+                    .thenApply(inputStream -> {
+                        log.info(Thread.currentThread().toString());
+                        log.info("Creating Http Credentials Adaptor");
+                        try {
+                            return new HttpCredentialsAdapter(GoogleCredentials.fromStream(inputStream)
+                                    .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS_READONLY)));
+                        } catch (IOException e) {
+                            log.error("Google Sheet initialization failed with error: " + e.getMessage());
+                            e.printStackTrace();
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .thenAccept(requestInitializer -> {
+                        log.info(Thread.currentThread().toString());
+                        log.info("Creating Sheet Builder");
+                        try {
+                            sheetsService =  new Sheets.Builder(
+                                    GoogleNetHttpTransport.newTrustedTransport(),
+                                    //GsonFactory.getDefaultInstance(),
+                                    JacksonFactory.getDefaultInstance(),
+                                    requestInitializer
+                            )
+                            .setApplicationName("Home Stack")
+                            .build();
+                        } catch (GeneralSecurityException | IOException | RuntimeException e) {
+                            log.error("Google Sheet initialization failed with error: " + e.getMessage());
+                            e.printStackTrace();
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .join();
         }
     }
 
@@ -151,99 +166,152 @@ public class GoogleSheetService {
         initSheetService();
 
         CompletableFuture.supplyAsync(() -> {
-                    try {
-                        return sheetsService.spreadsheets().values().get(expenseSheetId, taxSheetRange).execute();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
+                try {
+                    log.info(Thread.currentThread().toString());
+                    log.info("Fetching the records");
+                    return sheetsService.spreadsheets().values().get(expenseSheetId, taxSheetRange).execute();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }, virtualThreadExecutorService)
                 .exceptionally(ex -> {
                     ex.printStackTrace();
                     return null;
                 })
-                .thenApply(response -> Optional.ofNullable(response.getValues()).orElse(Collections.emptyList()).stream()
-                        .map(row -> Tax.builder()
-                                .financialYear((String) row.get(0))
-                                .paidAmount(row.size() < 2? 0: Integer.parseInt((String) row.get(1)))
-                                .refundAmount(row.size() < 3? 0: Integer.parseInt((String) row.get(2)))
-                                .build()
-                        )
-                        .toList()
+                .thenApply(
+                        response -> {
+                            log.info(Thread.currentThread().toString());
+                            log.info("Transforming the records");
+                            return Optional.ofNullable(response.getValues()).orElse(Collections.emptyList()).stream()
+                                    .map(row -> Tax.builder()
+                                            .financialYear((String) row.get(0))
+                                            .paidAmount(row.size() < 2? 0: Integer.parseInt((String) row.get(1)))
+                                            .refundAmount(row.size() < 3? 0: Integer.parseInt((String) row.get(2)))
+                                            .build()
+                                    )
+                                    .toList();
+                        }
                 )
                 .thenApply(records -> {
+                    log.info(Thread.currentThread().toString());
                     log.info("Number of transactions: {}", records.size());
                     return records;
                 })
                 .thenApply(records -> {
+                    log.info(Thread.currentThread().toString());
+                    log.info("Deleting the records");
                     taxRepository.deleteAll();
                     return records;
                 })
-                .thenAccept(records -> taxRepository.saveAll(records))
-                .join();
-
-//        ValueRange response = sheetsService.spreadsheets().values()
-//                .get(expenseSheetId, taxSheetRange)
-//                .execute();
-//
-//        List<Tax> records = Optional.ofNullable(response.getValues()).orElse(Collections.emptyList()).stream()
-//                .map(row -> Tax.builder()
-//                        .financialYear((String) row.get(0))
-//                        .paidAmount(row.size() < 2? 0: Integer.parseInt((String) row.get(1)))
-//                        .refundAmount(row.size() < 3? 0: Integer.parseInt((String) row.get(2)))
-//                        .build()
-//                )
-//                .toList();
-//
-//        log.info("Number of transactions: {}", records.size());
-//        taxRepository.deleteAll();
-//        taxRepository.saveAll(records);
+                .thenAccept(records -> {
+                    log.info(Thread.currentThread().toString());
+                    log.info("Inserting the records");
+                    taxRepository.saveAll(records);
+                });
+                //.join();
     }
 
     public void refreshTaxMonthlyData() throws IOException {
         initSheetService();
-        ValueRange response = sheetsService.spreadsheets().values()
-                .get(expenseSheetId, taxMonthSheetRange)
-                .execute();
-
-        List<TaxMonthly> records = Optional.ofNullable(response.getValues()).orElse(Collections.emptyList()).stream()
-                .filter(row -> row.size() > 1)
-                .map(row -> TaxMonthly.builder()
-                        .yearx((short) YearMonth.parse((String)row.get(0)).getYear())
-                        .monthx((short) YearMonth.parse((String)row.get(0)).getMonth().getValue())
-                        .paidAmount(Integer.parseInt((String) row.get(1)))
-                        .build()
-                )
-                .toList();
-
-        log.info("Number of transactions: {}", records.size());
-        taxMonthlyRepository.deleteAll();
-        taxMonthlyRepository.saveAll(records);
+        CompletableFuture.supplyAsync(() -> {
+            log.info(Thread.currentThread().toString());
+            log.info("Fetching the records");
+            try {
+                return sheetsService.spreadsheets().values()
+                        .get(expenseSheetId, taxMonthSheetRange)
+                        .execute();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }, virtualThreadExecutorService)
+        .exceptionally(ex -> {
+            ex.printStackTrace();
+            return null;
+        })
+        .thenApply(response -> {
+            log.info(Thread.currentThread().toString());
+            log.info("Transforming the records");
+            return Optional.ofNullable(response.getValues()).orElse(Collections.emptyList()).stream()
+                    .filter(row -> row.size() > 1)
+                    .map(row -> TaxMonthly.builder()
+                            .yearx((short) YearMonth.parse((String)row.get(0)).getYear())
+                            .monthx((short) YearMonth.parse((String)row.get(0)).getMonth().getValue())
+                            .paidAmount(Integer.parseInt((String) row.get(1)))
+                            .build()
+                    )
+                    .toList();
+        })
+        .thenApply(records -> {
+            log.info(Thread.currentThread().toString());
+            log.info("Number of transactions: {}", records.size());
+            return records;
+        })
+        .thenApply(records -> {
+            log.info(Thread.currentThread().toString());
+            log.info("Deleting the records");
+            taxMonthlyRepository.deleteAll();
+            return records;
+        })
+        .thenAccept(records -> {
+            log.info(Thread.currentThread().toString());
+            log.info("Inserting the records");
+            taxMonthlyRepository.saveAll(records);
+        });
     }
 
     public void refreshExpenseData() throws IOException {
         initSheetService();
-        ValueRange response = sheetsService.spreadsheets().values()
-                .get(expenseSheetId, expenseSheetRange)
-                .execute();
 
-        List<Expense> records = Optional.ofNullable(response.getValues()).orElse(Collections.emptyList()).stream()
-                .filter(row -> row.get(2) != null && ((String) row.get(2)).length() != 0)
-                .map(row -> Expense.builder()
-                        .date(parseToDate((String) row.get(0)))
-                        .head((String) row.get(1))
-                        .amount(Double.parseDouble((String) row.get(2)))
-                        .comment(row.get(3) == null? "": (String) row.get(3))
-                        .yearx(row.get(4) == null? 0:Integer.parseInt((String) row.get(4)))
-                        .monthx(row.get(5) == null? 0:Integer.parseInt((String) row.get(5)))
-                        //.category(Utility.getExpenseCategory((String) row.get(1), row.get(3) == null? "": (String) row.get(3)))
-                        .category(row.get(1) == null? "": expenseCategorizerClient.getExpenseCategory((String) row.get(1)))
-                        .build()
-                )
-                .toList();
-
-        log.info("Number of transactions: {}", records.size());
-        expenseRepository.deleteAll();
-        expenseRepository.saveAll(records);
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                log.info(Thread.currentThread().toString());
+                log.info("Fetching the records");
+                return sheetsService.spreadsheets().values()
+                        .get(expenseSheetId, expenseSheetRange)
+                        .execute();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }, virtualThreadExecutorService)
+        .exceptionally(ex -> {
+            ex.printStackTrace();
+            return null;
+        })
+        .thenApply(
+                response -> {
+                    log.info(Thread.currentThread().toString());
+                    log.info("Transforming the records");
+                    return Optional.ofNullable(response.getValues()).orElse(Collections.emptyList()).stream()
+                            .filter(row -> row.get(2) != null && ((String) row.get(2)).length() != 0)
+                            .map(row -> Expense.builder()
+                                    .date(parseToDate((String) row.get(0)))
+                                    .head((String) row.get(1))
+                                    .amount(Double.parseDouble((String) row.get(2)))
+                                    .comment(row.get(3) == null ? "" : (String) row.get(3))
+                                    .yearx(row.get(4) == null ? 0 : Integer.parseInt((String) row.get(4)))
+                                    .monthx(row.get(5) == null ? 0 : Integer.parseInt((String) row.get(5)))
+                                    //.category(Utility.getExpenseCategory((String) row.get(1), row.get(3) == null? "": (String) row.get(3)))
+                                    .category(row.get(1) == null ? "" : expenseCategorizerClient.getExpenseCategory((String) row.get(1)))
+                                    .build()
+                            )
+                            .toList();
+                }
+        )
+        .thenApply(records -> {
+            log.info(Thread.currentThread().toString());
+            log.info("Number of transactions: {}", records.size());
+            return records;
+        })
+        .thenApply(records -> {
+            log.info(Thread.currentThread().toString());
+            log.info("Deleting the records");
+            expenseRepository.deleteAll();
+            return records;
+        })
+        .thenAccept(records -> {
+            log.info("Inserting the records");
+            expenseRepository.saveAll(records);
+        });
     }
 
     public Flux<String> refreshExpenseDataStream() throws IOException {
