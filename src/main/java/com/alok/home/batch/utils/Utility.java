@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//import static java.lang.StringTemplate.STR;
+
 /**
  *
  */
@@ -214,6 +216,27 @@ public class Utility {
     }
 
     static public String getCompanyName(String salaryCreditDescription) {
+//        String name = "Duke";
+//        String info = STR."My name is \{name}";
+//        System.out.println(info);
+
+//        return switch (salaryCreditDescription) {
+//            case null -> Company.UNKNOWN.name();
+//            case String creditDescription when creditDescription.toLowerCase()
+//                    .matches(".*j.p. morgan services.*|.*jpmcremittance.*|.*jpmc.*") -> Company.JPMC.name();
+//            case String creditDescription when creditDescription.toLowerCase()
+//                    .matches(".*evolving.*|.*evoling.*") -> Company.EVOLVING.name();
+//            case String creditDescription when creditDescription.toLowerCase()
+//                    .matches(".*wipro.*") -> Company.WIPRO.name();
+//            case String creditDescription when creditDescription.toLowerCase()
+//                    .matches(".*yodlee.*") -> Company.YODLEE.name();
+//            case String creditDescription when creditDescription.toLowerCase()
+//                    .matches(".*bosch.*") -> Company.ROBERT_BOSCH.name();
+//            case String creditDescription when creditDescription.toLowerCase()
+//                    .matches(".*salary.*") -> Company.SUBEX.name();
+//            default -> Company.UNKNOWN.name();
+//        };
+
         if (salaryCreditDescription.toLowerCase().matches(".*j.p. morgan services.*|.*jpmcremittance.*|.*jpmc.*"))
             return Company.JPMC.name();
 

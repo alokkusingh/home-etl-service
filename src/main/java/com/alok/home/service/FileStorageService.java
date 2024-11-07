@@ -2,7 +2,6 @@ package com.alok.home.service;
 
 import com.alok.home.commons.constant.UploadType;
 import com.alok.home.commons.dto.exception.FileStorageException;
-import com.alok.home.commons.dto.exception.UploadTypeNotSupportedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -49,7 +48,6 @@ public class FileStorageService {
             case ExpenseGoogleSheet -> Paths.get(expenseDirLocation).toAbsolutePath().normalize();
             case TaxGoogleSheet -> Paths.get(taxDirLocation).toAbsolutePath().normalize();
             case InvestmentGoogleSheet -> Paths.get(investmentDirLocation).toAbsolutePath().normalize();
-            default -> throw new UploadTypeNotSupportedException(String.format("Upload Type %s not supported", uploadType.name()));
         };
     }
 
@@ -59,7 +57,6 @@ public class FileStorageService {
             case ExpenseGoogleSheet -> StringUtils.cleanPath("Expense Sheet - Form Responses 1.csv");
             case TaxGoogleSheet -> StringUtils.cleanPath("Expense Sheet - Tax by year.csv");
             case InvestmentGoogleSheet -> StringUtils.cleanPath("Expense Sheet - Investment.csv");
-            default -> throw new UploadTypeNotSupportedException(String.format("Upload Type %s not supported", uploadType.name()));
         };
     }
 

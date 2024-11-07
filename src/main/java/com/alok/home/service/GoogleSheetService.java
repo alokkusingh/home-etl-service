@@ -5,7 +5,6 @@ import com.alok.home.commons.entity.*;
 import com.alok.home.commons.repository.*;
 import com.alok.home.grpc.ExpenseCategorizerClient;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
@@ -20,7 +19,6 @@ import reactor.core.publisher.Flux;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,33 +28,32 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
 public class GoogleSheetService {
 
-    private String serviceAccountKeyFile;
-    private String expenseSheetId;
-    private String taxSheetRange;
-    private String taxMonthSheetRange;
-    private String expenseSheetRange;
-    private String investmentSheetRange;
+    private final String serviceAccountKeyFile;
+    private final String expenseSheetId;
+    private final String taxSheetRange;
+    private final String taxMonthSheetRange;
+    private final String expenseSheetRange;
+    private final String investmentSheetRange;
     private Sheets sheetsService;
-    private String odionSheetId;
-    private String odionTransactionsSheetRange;
-    private ExpenseRepository expenseRepository;
-    private TaxRepository taxRepository;
-    private TaxMonthlyRepository taxMonthlyRepository;
-    private InvestmentRepository investmentRepository;
-    private OdionTransactionRepository odionTransactionRepository;
+    private final String odionSheetId;
+    private final String odionTransactionsSheetRange;
+    private final ExpenseRepository expenseRepository;
+    private final TaxRepository taxRepository;
+    private final TaxMonthlyRepository taxMonthlyRepository;
+    private final InvestmentRepository investmentRepository;
+    private final OdionTransactionRepository odionTransactionRepository;
 
-    private ExpenseCategorizerClient expenseCategorizerClient;
+    private final ExpenseCategorizerClient expenseCategorizerClient;
 
     private final SimpleDateFormat simpleDateFormat;
 
-    private ExecutorService virtualThreadExecutorService;
+    private final ExecutorService virtualThreadExecutorService;
 
     public GoogleSheetService(
             @Value("${file.path.service_account.key}") String serviceAccountKeyFile,
@@ -73,7 +70,8 @@ public class GoogleSheetService {
             InvestmentRepository investmentRepository,
             OdionTransactionRepository odionTransactionRepository,
             ExpenseCategorizerClient expenseCategorizerClient,
-            ExecutorService virtualThreadExecutorService) {
+            ExecutorService virtualThreadExecutorService
+    ) {
         this.serviceAccountKeyFile = serviceAccountKeyFile;
         this.expenseSheetId = expenseSheetId;
         this.taxSheetRange = taxSheetRange;

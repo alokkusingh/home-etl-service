@@ -22,15 +22,19 @@ public class BankUtils {
         lineTokenizer.setStrict(false);
         lineTokenizer.setNames(fieldNames);
 
-        FieldSetMapper<Transaction> fieldSetMapper = null;
+        var fieldSetMapper = switch (lineMapperType) {
+            case KOTAK -> new KotakImportedFieldSetMapper();
+            case HDFC -> new HDFCImportedFieldSetMapper();
+            case KOTAK_V3 -> new KotakImportedV3FieldSetMapper();
+        };
 
-        if (lineMapperType == LineMapperType.KOTAK)
-            fieldSetMapper = new KotakImportedFieldSetMapper();
-        else if (lineMapperType == LineMapperType.HDFC)
-            fieldSetMapper = new HDFCImportedFieldSetMapper();
-        else if (lineMapperType == LineMapperType.KOTAK_V3) {
-            fieldSetMapper = new KotakImportedV3FieldSetMapper();
-        }
+//        if (lineMapperType == LineMapperType.KOTAK)
+//            fieldSetMapper = new KotakImportedFieldSetMapper();
+//        else if (lineMapperType == LineMapperType.HDFC)
+//            fieldSetMapper = new HDFCImportedFieldSetMapper();
+//        else if (lineMapperType == LineMapperType.KOTAK_V3) {
+//            fieldSetMapper = new KotakImportedV3FieldSetMapper();
+//        }
 
         defaultLineMapper.setLineTokenizer(lineTokenizer);
         defaultLineMapper.setFieldSetMapper(fieldSetMapper);

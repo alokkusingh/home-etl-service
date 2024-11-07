@@ -35,10 +35,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @Slf4j
 public class HomeEtlServiceApplication implements ApplicationRunner {
 
-	private JobExecutorOfBankService jobExecutorOfBankService;
-	private JobExecutorOfExpenseService jobExecutorOfExpenseService;
-	private JobExecutorOfTaxService jobExecutorOfTaxService;
-	private JobExecutorOfInvestmentService jobExecutorOfInvestmentService;
+	private final JobExecutorOfBankService jobExecutorOfBankService;
+	private final JobExecutorOfExpenseService jobExecutorOfExpenseService;
+	private final JobExecutorOfTaxService jobExecutorOfTaxService;
+	private final JobExecutorOfInvestmentService jobExecutorOfInvestmentService;
 
 	@Autowired
 	public HomeEtlServiceApplication(
