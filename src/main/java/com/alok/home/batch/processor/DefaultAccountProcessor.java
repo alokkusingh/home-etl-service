@@ -13,7 +13,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-@Component("missingAccountProcessor")
+//@Component("missingAccountProcessor")
+@Component
 @Slf4j
 public class DefaultAccountProcessor implements ItemProcessor<Transaction, Transaction> {
 

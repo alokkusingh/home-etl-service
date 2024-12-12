@@ -38,6 +38,7 @@ public class JobExecutorOfBankService {
     private final String kotakExportDir;
     private final JobLauncher jobLauncher;
     private final Job missingAccountJob;
+    private final Job manualAccountJob;
     private final Job citiBankJob1;
     private final Job citiBankJob2;
     private final Job citiBankJob3;
@@ -62,6 +63,7 @@ public class JobExecutorOfBankService {
             @Value("${dir.path.kotak_account.imported.v3}") String kotakExportDir,
             @Value("${file.export.google.sheet}") String outputFileName,
             @Qualifier("MissingAccountJob") Job missingAccountJob,
+            @Qualifier("ManualAccountJob") Job manualAccountJob,
             @Qualifier("CitiBankJob1") Job citiBankJob1,
             @Qualifier("CitiBankJob2") Job citiBankJob2,
             @Qualifier("CitiBankJob3") Job citiBankJob3,
@@ -76,13 +78,13 @@ public class JobExecutorOfBankService {
             MultiResourceItemReader<Transaction> kotakImportedItemsReaderV3,
             FlatFileItemWriter<Transaction> csvWriterForGoogleSheet,
             TransactionRepository transactionRepository
-
     ) {
         this.resourceLoader = resourceLoader;
         this.hdfcExportDir = hdfcExportDir;
         this.kotakExportDir = kotakExportDir;
         this.jobLauncher = jobLauncher;
         this.missingAccountJob = missingAccountJob;
+        this.manualAccountJob = manualAccountJob;
         this.citiBankJob1 = citiBankJob1;
         this.citiBankJob2 = citiBankJob2;
         this.citiBankJob3 = citiBankJob3;
@@ -149,6 +151,11 @@ public class JobExecutorOfBankService {
                 .addString(JobConstants.BATCH_OF, BatchOf.AXIS_BANK.name())
                 .toJobParameters());
         MDC.remove(MDCKey.BANK.name());
+
+        jobLauncher.run(manualAccountJob, new JobParametersBuilder()
+                .addString(JobConstants.JOB_ID, String.valueOf(System.currentTimeMillis()))
+                .addString(JobConstants.BATCH_OF, "Manual")
+                .toJobParameters());
 
         MDC.put(MDCKey.BANK.name(), Bank.CITI.name());
         jobLauncher.run(citiBankJob1, new JobParametersBuilder()
