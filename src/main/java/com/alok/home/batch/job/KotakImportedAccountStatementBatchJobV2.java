@@ -23,7 +23,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-@EnableBatchProcessing
+//@EnableBatchProcessing
 public class KotakImportedAccountStatementBatchJobV2 {
     @Value("file:${file.path.kotak_account.imported.v2}")
     private Resource[] resources;

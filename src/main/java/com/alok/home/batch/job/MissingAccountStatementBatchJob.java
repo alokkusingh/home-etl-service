@@ -26,7 +26,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-@EnableBatchProcessing
+//@EnableBatchProcessing
 public class MissingAccountStatementBatchJob {
     @Value("file:${file.path.missing_account}")
     private Resource[] resources;

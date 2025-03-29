@@ -18,6 +18,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, OncePerRequestFilter customAuthenticationFilter) throws Exception {
+        final String[] EXCLUDED_PATTERNS = {
+                "/h2-console/**"
+        };
+        http.headers(headers -> headers.frameOptions(frameOptionsConfig -> {
+            frameOptionsConfig.disable();
+            frameOptionsConfig.sameOrigin();
+        }));
 
         return http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -30,6 +37,7 @@ public class SecurityConfig {
 
                     auth.requestMatchers("/report", "/report/**").hasAnyRole("ADMIN");
                     auth.requestMatchers("/file", "/file/**").hasAnyRole("ADMIN", "LOCALHOST");
+                    auth.requestMatchers("/h2-console", "/h2-console/**").hasAnyRole("ADMIN", "LOCALHOST");
 
                     auth.anyRequest().authenticated();
                 })

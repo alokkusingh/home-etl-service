@@ -30,7 +30,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import java.text.SimpleDateFormat;
 
 @Configuration
-@EnableBatchProcessing
+//@EnableBatchProcessing
 public class KotakAccountStatementBatchJob {
     @Value("file:${file.path.kotak_account}")
     private Resource[] resources;

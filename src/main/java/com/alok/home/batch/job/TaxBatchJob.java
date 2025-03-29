@@ -26,7 +26,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-@EnableBatchProcessing
+//@EnableBatchProcessing
 public class TaxBatchJob {
     @Value("file:${file.path.tax}")
     private Resource[] resources;

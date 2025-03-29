@@ -29,7 +29,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import java.util.List;
 
 @Configuration
-@EnableBatchProcessing
+//@EnableBatchProcessing
 public class InvestmentBatchJob {
     @Value("file:${file.path.investment}")
     private Resource[] resources;

@@ -1,6 +1,7 @@
 package com.alok.home.batch.reader;
 
 import com.alok.home.commons.entity.ProcessedFile;
+import com.alok.home.commons.entity.Transaction;
 import com.alok.home.commons.repository.ProcessedFileRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ExecutionContext;
@@ -49,7 +50,14 @@ public class CSVReader<T> extends FlatFileItemReader<T> {
             return null;
         }
 
-        return super.doRead();
+        T t = super.doRead();
+
+        if (t instanceof Transaction transaction) {
+            log.debug("Read: {}", t);
+            transaction.setFile(resource.getFilename());
+        }
+
+        return t;
     }
 
     @Override

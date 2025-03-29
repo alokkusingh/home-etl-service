@@ -23,7 +23,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-@EnableBatchProcessing
+//@EnableBatchProcessing
 public class HDFCImportedAccountStatementBatchJob {
     @Value("file:${file.path.hdfc_account.imported}")
     private Resource[] resources;

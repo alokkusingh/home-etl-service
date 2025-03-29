@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
+
 @Slf4j
 @RestController
 @RequestMapping("/file")
@@ -32,6 +34,14 @@ public class FIleController {
         this.taxJobExecutorService = taxJobExecutorService;
         this.investmentJobExecutorService = investmentJobExecutorService;
         this.bankJobExecutorService = bankJobExecutorService;
+    }
+
+    @LogExecutionTime
+    @CrossOrigin
+    @GetMapping("/processed")
+    public ResponseEntity<Map<String, Object>> getAllProcessedFiles() {
+        return ResponseEntity.ok()
+                .body(fileStorageService.getAllProcessedFiles());
     }
 
     @LogExecutionTime

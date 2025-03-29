@@ -26,7 +26,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-@EnableBatchProcessing
+//@EnableBatchProcessing
 public class ManualTransactionEntryBatchJob {
     @Value("file:${file.path.manual_account}")
     private Resource[] resources;

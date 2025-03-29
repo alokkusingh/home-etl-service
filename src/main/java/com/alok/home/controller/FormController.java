@@ -5,6 +5,7 @@ import com.alok.home.model.ExpenseForm;
 import com.alok.home.response.GenericResponse;
 import com.alok.home.service.FormService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
@@ -23,9 +24,10 @@ public class FormController {
         this.formService = formService;
     }
 
-    @PostMapping("/expense")
-    public ResponseEntity<GenericResponse> submitExpenseForm(@RequestBody ExpenseForm expenseForm) throws IOException {
+    @PostMapping(value = "/expense", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
+    public ResponseEntity<GenericResponse> submitExpenseForm(@RequestBody String expense) throws IOException {
 
+        ExpenseForm expenseForm = new ExpenseForm("", 0.0, "");
         try {
             Assert.notNull(expenseForm.amount(), "Amount can't be null");
             Assert.notNull(expenseForm.head(), "Head can't be null");

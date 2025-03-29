@@ -2,6 +2,7 @@ package com.alok.home.service;
 
 import com.alok.home.commons.constant.UploadType;
 import com.alok.home.commons.dto.exception.FileStorageException;
+import com.alok.home.commons.repository.ProcessedFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Service
 public class FileStorageService {
@@ -40,6 +45,9 @@ public class FileStorageService {
 
     @Autowired
     private GitHubService gitHubService;
+
+    @Autowired
+    private ProcessedFileRepository processedFileRepository;
 
     private Path getStoragePath(UploadType uploadType) {
         return switch(uploadType) {
@@ -82,5 +90,18 @@ public class FileStorageService {
         } catch (IOException ex) {
             throw new FileStorageException("Could not store file " + fileName + ". Please try again!", ex);
         }
+    }
+
+    public Map<String, Object> getAllProcessedFiles() {
+        record FileRecord(Integer id, String name, String type, Date date) {};
+        var processedFiles = processedFileRepository.findAll().stream()
+                .filter(file -> !"INVESTMENT".equals(file.getType()))
+                .filter(file -> !"TAX".equals(file.getType()))
+                .filter(file -> !"EXPENSE".equals(file.getType()))
+                .map(file -> new FileRecord(file.getId(), file.getName(), file.getType(), file.getDate()))
+                .sorted(Comparator.comparing(FileRecord::id).reversed())
+                .toList();
+
+        return Map.of("count", processedFiles.size(), "files", processedFiles);
     }
 }

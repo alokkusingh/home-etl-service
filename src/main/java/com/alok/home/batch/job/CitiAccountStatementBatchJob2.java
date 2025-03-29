@@ -27,7 +27,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-@EnableBatchProcessing
+//@EnableBatchProcessing
 public class CitiAccountStatementBatchJob2 {
     @Value("file:${file.path.citi_account.password2}")
     private Resource[] resources;
