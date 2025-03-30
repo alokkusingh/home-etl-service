@@ -24,10 +24,9 @@ public class FormController {
         this.formService = formService;
     }
 
-    @PostMapping(value = "/expense", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
-    public ResponseEntity<GenericResponse> submitExpenseForm(@RequestBody String expense) throws IOException {
+    @PostMapping(value = "/expense", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<GenericResponse> submitExpenseForm(@RequestBody ExpenseForm expenseForm) throws IOException {
 
-        ExpenseForm expenseForm = new ExpenseForm("", 0.0, "");
         try {
             Assert.notNull(expenseForm.amount(), "Amount can't be null");
             Assert.notNull(expenseForm.head(), "Head can't be null");
