@@ -21,7 +21,7 @@ java -jar target/home-etl-service-1.0.0-SNAPSHOT.jar --file.path.base.dir=/home/
 ### Build
 #### Set JAVA_HOME (in case mvn run through terminal)
 ```shell
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-25.jdk/Contents/Home
 export PATH=$JAVA_HOME/bin:$PATH
 ```
 #### Generate Proto file
@@ -38,13 +38,13 @@ protoc --plugin=protoc-gen-grpc-java=protoc-gen-grpc-java-1.66.0-osx-aarch_64.ex
    ```
 2. Docker Build, Push & Run
    ```shell
-   docker build -t alokkusingh/home-etl-service:latest -t alokkusingh/home-etl-service:2.0.0 --build-arg JAR_FILE=target/home-etl-service-1.0.0-SNAPSHOT.jar .
+   docker build -t alokkusingh/home-etl-service:latest -t alokkusingh/home-etl-service:2.1.0 --build-arg JAR_FILE=target/home-etl-service-1.0.0-SNAPSHOT.jar .
    ```
    ```shell
    docker push alokkusingh/home-etl-service:latest
    ```
    ```shell
-   docker push alokkusingh/home-etl-service:2.0.0
+   docker push alokkusingh/home-etl-service:2.1.0
    ```
    ```shell
    docker run -d -v /home/alok/data/git/BankStatements:/Users/aloksingh/BankStatements:rw,Z -p 8081:8081 --rm --name home-etl-service alokkusingh/home-etl-service
