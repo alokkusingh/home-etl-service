@@ -200,7 +200,7 @@ public class Utility {
         if (fileName.matches("^Report-.*.csv$|^KM52025632.*.csv$"))
             return UploadType.KotakExportedStatement;
 
-        if (fileName.matches("^190992811_.*.txt$"))
+        if (fileName.matches("^190992811_.*.txt$|^Acct_Statement_XXXXXXXX0531_.*.txt$"))
             return UploadType.HDFCExportedStatement;
 
         if (fileName.matches("^Expense Sheet - Form Responses.*.csv$"))
