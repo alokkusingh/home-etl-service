@@ -45,17 +45,6 @@ public class FormService {
 
     public void submitExpenseForm(ExpenseForm expenseForm) throws IOException {
 
-        restTemplate.getForEntity(
-                String.format(
-                        expenseFormUrl,
-                        URLEncoder.encode(expenseForm.head(), StandardCharsets.UTF_8),
-                        expenseForm.amount(),
-                        URLEncoder.encode(expenseForm.comment() == null?"":expenseForm.comment(), StandardCharsets.UTF_8)
-                ),
-                String.class
-        );
-
-
         expenseRepository.save(
                 Expense.builder()
                     .date(new Date())
@@ -67,6 +56,16 @@ public class FormService {
                     .category(expenseCategorizerClient.getExpenseCategory(expenseForm.head()))
                     .build()
                 );
+
+        restTemplate.getForEntity(
+                String.format(
+                        expenseFormUrl,
+                        URLEncoder.encode(expenseForm.head(), StandardCharsets.UTF_8),
+                        expenseForm.amount(),
+                        URLEncoder.encode(expenseForm.comment() == null?"":expenseForm.comment(), StandardCharsets.UTF_8)
+                ),
+                String.class
+        );
     }
 
     public void submitEstateForm(EstateForm estateForm) throws IOException {
