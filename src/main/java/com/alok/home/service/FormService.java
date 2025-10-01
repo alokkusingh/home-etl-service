@@ -1,5 +1,6 @@
 package com.alok.home.service;
 
+import com.alok.home.commons.constant.Account;
 import com.alok.home.commons.entity.Expense;
 import com.alok.home.commons.entity.OdionTransaction;
 import com.alok.home.commons.repository.ExpenseRepository;
@@ -84,8 +85,8 @@ public class FormService {
                 OdionTransaction.builder()
                         .date(LocalDate.now())
                         .particular(estateForm.particular())
-                        .debitAccount(OdionTransaction.Account.valueOfOrDefault(estateForm.debitFrom()))
-                        .creditAccount(OdionTransaction.Account.valueOfOrDefault(estateForm.creditTo()))
+                        .debitAccount(Account.valueOfOrDefault(estateForm.debitFrom()))
+                        .creditAccount(Account.valueOfOrDefault(estateForm.creditTo()))
                         .amount(estateForm.amount())
                         .build()
         );

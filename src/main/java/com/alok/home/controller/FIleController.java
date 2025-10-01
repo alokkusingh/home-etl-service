@@ -59,17 +59,30 @@ public class FIleController {
         String fineName = fileStorageService.storeFile(file, uploadType);
 
         try {
-            if (uploadType == UploadType.ExpenseGoogleSheet)
-                expenseJobExecutorService.executeAllJobs(true);
-
-            if (uploadType == UploadType.TaxGoogleSheet)
-                taxJobExecutorService.executeAllJobs(true);
-
-            if (uploadType == UploadType.InvestmentGoogleSheet)
-                investmentJobExecutorService.executeAllJobs(true);
-
-            if (uploadType == UploadType.HDFCExportedStatement || uploadType == UploadType.KotakExportedStatement)
-                bankJobExecutorService.executeBatchJob(uploadType, file.getOriginalFilename());
+            switch (uploadType) {
+                case ExpenseGoogleSheet -> expenseJobExecutorService.executeAllJobs(true);
+                case TaxGoogleSheet -> taxJobExecutorService.executeAllJobs(true);
+                case InvestmentGoogleSheet -> investmentJobExecutorService.executeAllJobs(true);
+                case HDFCExportedStatement, KotakExportedStatement ->
+                        bankJobExecutorService.executeBatchJob(uploadType, file.getOriginalFilename());
+                case null -> {
+                    log.warn("Could not determine upload type for file: {}", file.getOriginalFilename());
+                }
+                default -> {
+                    log.warn("No processing defined for upload type: {}", uploadType);
+                }
+            }
+//            if (uploadType == UploadType.ExpenseGoogleSheet)
+//                expenseJobExecutorService.executeAllJobs(true);
+//
+//            if (uploadType == UploadType.TaxGoogleSheet)
+//                taxJobExecutorService.executeAllJobs(true);
+//
+//            if (uploadType == UploadType.InvestmentGoogleSheet)
+//                investmentJobExecutorService.executeAllJobs(true);
+//
+//            if (uploadType == UploadType.HDFCExportedStatement || uploadType == UploadType.KotakExportedStatement)
+//                bankJobExecutorService.executeBatchJob(uploadType, file.getOriginalFilename());
 
         } catch (Exception e) {
             e.printStackTrace();

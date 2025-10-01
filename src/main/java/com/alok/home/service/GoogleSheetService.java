@@ -1,5 +1,6 @@
 package com.alok.home.service;
 
+import com.alok.home.commons.constant.Account;
 import com.alok.home.commons.constant.InvestmentType;
 import com.alok.home.commons.entity.*;
 import com.alok.home.commons.repository.*;
@@ -421,8 +422,8 @@ public class GoogleSheetService {
                 .map(row -> OdionTransaction.builder()
                         .date(LocalDate.parse((String)row.get(0), formatter))
                         .particular((String)row.get(1))
-                        .debitAccount(OdionTransaction.Account.valueOfOrDefault((String)row.get(2)))
-                        .creditAccount(OdionTransaction.Account.valueOfOrDefault((String)row.get(3)))
+                        .debitAccount(Account.valueOfOrDefault((String)row.get(2)))
+                        .creditAccount(Account.valueOfOrDefault((String)row.get(3)))
                         .amount(Double.parseDouble((String) row.get(4)))
                         .build()
                 )

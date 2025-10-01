@@ -21,7 +21,7 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
 		<lombok.version>1.18.40</lombok.version>
-		<home.commons.version>2.0.0</home.commons.version>
+		<home.commons.version>2.1.5</home.commons.version>
 	</properties>
 
 	<dependencies>
