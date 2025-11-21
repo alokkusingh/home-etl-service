@@ -286,7 +286,7 @@ public class GoogleSheetService {
                                     .date(parseToDate((String) row.get(0)))
                                     .head((String) row.get(1))
                                     .amount(Double.parseDouble((String) row.get(2)))
-                                    .comment(row.get(3) == null ? "" : (String) row.get(3))
+                                    .comment(row.get(3) == null ? "" : truncateString((String) row.get(3), 250))
                                     .yearx(row.get(4) == null ? 0 : Integer.parseInt((String) row.get(4)))
                                     .monthx(row.get(5) == null ? 0 : Integer.parseInt((String) row.get(5)))
                                     //.category(Utility.getExpenseCategory((String) row.get(1), row.get(3) == null? "": (String) row.get(3)))
@@ -310,8 +310,11 @@ public class GoogleSheetService {
         .thenAccept(records -> {
             log.info("Inserting the records");
             expenseRepository.saveAll(records);
+        })
+        .thenAccept(records -> {
+            log.info("Refresh Completed");
         });
-    }
+}
 
     public Flux<String> refreshExpenseDataStream() throws IOException {
         initSheetService();
@@ -439,6 +442,14 @@ public class GoogleSheetService {
             return simpleDateFormat.parse(strDate);
         } catch (ParseException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private String truncateString(String text, int length) {
+        if (text.length() <= length) {
+            return text;
+        } else {
+            return text.substring(0, length);
         }
     }
 }
