@@ -1,6 +1,7 @@
 package com.alok.home.exception;
 
 import com.alok.home.commons.dto.exception.GlobalRestExceptionHandler;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,6 +20,17 @@ public class CustomRestExceptionHandler extends GlobalRestExceptionHandler {
         problemDetail.setTitle("Client Exception");
         problemDetail.setType(URI.create("home-etl/errors/server-error"));
         problemDetail.setProperty("errorCategory", "ServerError");
+        problemDetail.setProperty("timestamp", ZonedDateTime.now());
+        e.printStackTrace();
+        return problemDetail;
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    ProblemDetail handleException(DataIntegrityViolationException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+        problemDetail.setTitle("SQL Exception");
+        problemDetail.setType(URI.create("home-etl/errors/client-error"));
+        problemDetail.setProperty("errorCategory", "ClientError");
         problemDetail.setProperty("timestamp", ZonedDateTime.now());
         e.printStackTrace();
         return problemDetail;

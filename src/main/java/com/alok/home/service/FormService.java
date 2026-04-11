@@ -8,6 +8,7 @@ import com.alok.home.commons.repository.OdionTransactionRepository;
 import com.alok.home.grpc.ExpenseCategorizerClient;
 import com.alok.home.model.EstateForm;
 import com.alok.home.model.ExpenseForm;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -51,7 +52,7 @@ public class FormService {
                     .date(new Date())
                     .head(expenseForm.head())
                     .amount(expenseForm.amount())
-                    .comment(expenseForm.comment() == null? "": expenseForm.comment())
+                    .comment(expenseForm.comment() == null? "": StringUtils.abbreviate(expenseForm.comment(), 255))
                     .yearx(YearMonth.now().getYear())
                     .monthx(YearMonth.now().getMonthValue())
                     .category(expenseCategorizerClient.getExpenseCategory(expenseForm.head()))
@@ -63,7 +64,7 @@ public class FormService {
                         expenseFormUrl,
                         URLEncoder.encode(expenseForm.head(), StandardCharsets.UTF_8),
                         expenseForm.amount(),
-                        URLEncoder.encode(expenseForm.comment() == null?"":expenseForm.comment(), StandardCharsets.UTF_8)
+                        URLEncoder.encode(expenseForm.comment() == null?"":StringUtils.abbreviate(expenseForm.comment(), 255), StandardCharsets.UTF_8)
                 ),
                 String.class
         );
