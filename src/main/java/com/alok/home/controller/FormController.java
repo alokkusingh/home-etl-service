@@ -25,7 +25,9 @@ public class FormController {
     }
 
     @PostMapping(value = "/expense", consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<GenericResponse> submitExpenseForm(@RequestBody ExpenseForm expenseForm) throws IOException {
+    public ResponseEntity<GenericResponse> submitExpenseForm(
+            @RequestBody ExpenseForm expenseForm,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) throws IOException {
 
         try {
             Assert.notNull(expenseForm.amount(), "Amount can't be null");
@@ -39,7 +41,7 @@ public class FormController {
                     );
         }
 
-        formService.submitExpenseForm(expenseForm);
+        formService.submitExpenseForm(expenseForm, idempotencyKey);
 
         return ResponseEntity.ok()
                 .body(GenericResponse.builder()
@@ -50,7 +52,9 @@ public class FormController {
     }
 
     @PostMapping("/estate")
-    public ResponseEntity<GenericResponse> submitEstateForm(@RequestBody EstateForm estateForm) throws IOException {
+    public ResponseEntity<GenericResponse> submitEstateForm(
+            @RequestBody EstateForm estateForm,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) throws IOException {
 
         try {
             Assert.notNull(estateForm.amount(), "Amount can't be null");
@@ -66,7 +70,7 @@ public class FormController {
                     );
         }
 
-        formService.submitEstateForm(estateForm);
+        formService.submitEstateForm(estateForm, idempotencyKey);
 
         return ResponseEntity.ok()
                 .body(GenericResponse.builder()

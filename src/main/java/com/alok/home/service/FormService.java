@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Date;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class FormService {
@@ -26,6 +27,7 @@ public class FormService {
     private final ExpenseRepository expenseRepository;
     private final ExpenseCategorizerClient expenseCategorizerClient;
     private final OdionTransactionRepository odionTransactionRepository;
+    private final ConcurrentHashMap<String, Boolean> idempotencyCache = new ConcurrentHashMap<>();
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final String estateFormUrl;
@@ -45,7 +47,11 @@ public class FormService {
         this.expenseFormUrl = expenseFormUrl;
     }
 
-    public void submitExpenseForm(ExpenseForm expenseForm) throws IOException {
+    public void submitExpenseForm(ExpenseForm expenseForm, String idempotencyKey) throws IOException {
+
+        if (idempotencyKey != null && idempotencyCache.containsKey(idempotencyKey)) {
+            return;
+        }
 
         expenseRepository.save(
                 Expense.builder()
@@ -68,9 +74,17 @@ public class FormService {
                 ),
                 String.class
         );
+
+        if (idempotencyKey != null) {
+            idempotencyCache.put(idempotencyKey, true);
+        }
     }
 
-    public void submitEstateForm(EstateForm estateForm) throws IOException {
+    public void submitEstateForm(EstateForm estateForm, String idempotencyKey) throws IOException {
+
+        if (idempotencyKey != null && idempotencyCache.containsKey(idempotencyKey)) {
+            return;
+        }
 
         restTemplate.getForEntity(
                 String.format(estateFormUrl,
@@ -91,5 +105,9 @@ public class FormService {
                         .amount(estateForm.amount())
                         .build()
         );
+
+        if (idempotencyKey != null) {
+            idempotencyCache.put(idempotencyKey, true);
+        }
     }
 }
