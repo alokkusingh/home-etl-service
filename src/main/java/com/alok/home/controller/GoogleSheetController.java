@@ -133,4 +133,27 @@ public class GoogleSheetController {
                         .message("Refresh Submitted")
                         .build());
     }
+
+    @GetMapping("/refresh/events/life")
+    public ResponseEntity<GenericResponse> refreshLifeEvents() {
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                googleSheetService.refreshLifeEvents();
+            } catch (IOException |RuntimeException e) {
+                log.error("Google Sheet refresh failed with error: " + e.getMessage());
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        return ResponseEntity.accepted()
+                .cacheControl(CacheControl.maxAge(REFRESH_CASH_CONTROL, TimeUnit.SECONDS).noTransform().mustRevalidate())
+                .body(GenericResponse.builder()
+                        .status(GenericResponse.Status.SUCCESS)
+                        .message("Refresh Submitted")
+                        .build());
+    }
 }

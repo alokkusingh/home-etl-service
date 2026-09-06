@@ -1,6 +1,6 @@
 package com.alok.home;
 
-import com.alok.home.commons.utils.annotation.LogExecutionTime;
+import com.alok.home.commons.utils.annotation.runtime.LogExecutionTime;
 import com.alok.home.service.JobExecutorOfBankService;
 import com.alok.home.service.JobExecutorOfExpenseService;
 import com.alok.home.service.JobExecutorOfInvestmentService;

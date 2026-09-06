@@ -3,7 +3,7 @@ package com.alok.home.service;
 import com.alok.home.commons.constant.BatchOf;
 import com.alok.home.commons.repository.InvestmentRepository;
 import com.alok.home.commons.repository.ProcessedFileRepository;
-import com.alok.home.commons.utils.annotation.LogExecutionTime;
+import com.alok.home.commons.utils.annotation.runtime.LogExecutionTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParametersBuilder;

@@ -15,6 +15,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 
 import java.io.FileInputStream;
@@ -26,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -41,6 +43,8 @@ public class GoogleSheetService {
     private final String taxMonthSheetRange;
     private final String expenseSheetRange;
     private final String investmentSheetRange;
+    private final String lifeEventSheetId;
+    private final String lifeEventSheetRange;
     private Sheets sheetsService;
     private final String odionSheetId;
     private final String odionTransactionsSheetRange;
@@ -49,12 +53,19 @@ public class GoogleSheetService {
     private final TaxMonthlyRepository taxMonthlyRepository;
     private final InvestmentRepository investmentRepository;
     private final OdionTransactionRepository odionTransactionRepository;
+    private final LifeEventRepository lifeEventRepository;
+    private final FamilyProfileRepository familyProfileRepository;
 
     private final ExpenseCategorizerClient expenseCategorizerClient;
 
     private final SimpleDateFormat simpleDateFormat;
 
     private final ExecutorService virtualThreadExecutorService;
+
+    private static DateTimeFormatter SHEET_DATE_FORMATTER = new DateTimeFormatterBuilder()
+            .parseCaseInsensitive()
+            .appendPattern("[d-MMM-yyyy][dd-MMM-yyyy][d MMM yyyy][dd MMM yyyy]")
+            .toFormatter(Locale.ENGLISH);
 
     public GoogleSheetService(
             @Value("${file.path.service_account.key}") String serviceAccountKeyFile,
@@ -63,13 +74,15 @@ public class GoogleSheetService {
             @Value("${range.tax-sheet-monthly}") String taxMonthSheetRange,
             @Value("${range.expense-sheet}") String expenseSheetRange,
             @Value("${range.investment-sheet}") String investmentSheetRange,
+            @Value("${sheet.id.events.life}") String lifeEventSheetId,
+            @Value("${range.events.life}") String lifeEventSheetRange,
             @Value("${sheet.id.odion}") String odionSheetId,
             @Value("${range.odion.transaction}") String odionTransactionsSheetRange,
             ExpenseRepository expenseRepository,
             TaxRepository taxRepository,
             TaxMonthlyRepository taxMonthlyRepository,
             InvestmentRepository investmentRepository,
-            OdionTransactionRepository odionTransactionRepository,
+            OdionTransactionRepository odionTransactionRepository, LifeEventRepository lifeEventRepository, FamilyProfileRepository familyProfileRepository,
             ExpenseCategorizerClient expenseCategorizerClient,
             ExecutorService virtualThreadExecutorService
     ) {
@@ -79,6 +92,8 @@ public class GoogleSheetService {
         this.taxMonthSheetRange = taxMonthSheetRange;
         this.expenseSheetRange = expenseSheetRange;
         this.investmentSheetRange = investmentSheetRange;
+        this.lifeEventSheetId = lifeEventSheetId;
+        this.lifeEventSheetRange = lifeEventSheetRange;
         this.odionSheetId = odionSheetId;
         this.odionTransactionsSheetRange = odionTransactionsSheetRange;
         this.expenseRepository = expenseRepository;
@@ -102,6 +117,8 @@ public class GoogleSheetService {
 //                .setApplicationName("Home Stack")
 //                .build();
         this.odionTransactionRepository = odionTransactionRepository;
+        this.lifeEventRepository = lifeEventRepository;
+        this.familyProfileRepository = familyProfileRepository;
         this.expenseCategorizerClient = expenseCategorizerClient;
         this.virtualThreadExecutorService = virtualThreadExecutorService;
         this.simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
@@ -443,6 +460,112 @@ public class GoogleSheetService {
         log.info("Number of transactions: {}", records.size());
         odionTransactionRepository.deleteAll();
         odionTransactionRepository.saveAll(records);
+    }
+
+    @Transactional
+    public void refreshLifeEvents() throws Exception {
+        initSheetService();
+        ValueRange response = sheetsService.spreadsheets().values()
+                .get(lifeEventSheetId, lifeEventSheetRange)
+                .execute();
+
+        List<List<Object>> rawRows = Optional.ofNullable(response.getValues()).orElse(Collections.emptyList());
+
+        // 1. Create a shallow copy to safely isolate the collection from underlying stream state changes
+        List<List<Object>> rows = new ArrayList<>(rawRows);
+
+        if (!rows.isEmpty() && rows.get(0).get(0).toString().equalsIgnoreCase("Date")) {
+            rows.remove(0); // Safely pop the header
+        }
+
+        List<LifeEvent> recordsToSave = new ArrayList<>();
+
+        // 2. Map everything purely in memory without saving to repositories mid-loop
+        for (List<Object> row : rows) {
+            if (row == null || row.isEmpty() || row.get(0) == null || row.get(0).toString().trim().isEmpty()) {
+                continue;
+            }
+
+            try {
+                LocalDate eventDate = LocalDate.parse(row.get(0).toString().trim(), SHEET_DATE_FORMATTER);
+
+                String eventType = null;
+                Set<String> participantNames = new HashSet<>();
+                String[] entities = {"Alok", "Rachna", "Saanvi"};
+
+                for (int i = 0; i < entities.length; i++) {
+                    int columnIndex = i + 1;
+                    if (row.size() > columnIndex && row.get(columnIndex) != null) {
+                        String cellValue = row.get(columnIndex).toString().trim();
+                        if (!cellValue.isEmpty()) {
+                            eventType = cellValue;
+                            participantNames.add(entities[i]);
+                        }
+                    }
+                }
+
+                if (eventType == null || eventType.isEmpty()) {
+                    continue;
+                }
+
+                LocalDate endDate = null;
+                if (row.size() > 4 && row.get(4) != null) {
+                    String endDateStr = row.get(4).toString().trim();
+                    if (!endDateStr.isEmpty()) {
+                        endDate = LocalDate.parse(endDateStr, SHEET_DATE_FORMATTER);
+                    }
+                }
+
+                String rawNotes = null;
+                String externalId = null;
+                for (int j = row.size() - 1; j >= 5; j--) {
+                    if (row.get(j) != null) {
+                        String cellContent = row.get(j).toString().trim();
+                        if (!cellContent.isEmpty() && !cellContent.startsWith("Y:") && !cellContent.startsWith("Time:")) {
+                            rawNotes = cellContent;
+                            break;
+                        } else if (cellContent.startsWith("Time:")) {
+                            rawNotes = cellContent;
+                            break;
+                        }
+                    }
+                }
+
+                if (rawNotes != null && rawNotes.contains("Id:")) {
+                    externalId = rawNotes.replaceAll(".*Id:\\s*(\\S+).*", "$1");
+                }
+
+                LifeEvent lifeEvent = new LifeEvent();
+                lifeEvent.setEventDate(eventDate);
+                lifeEvent.setEndDate(endDate);
+                lifeEvent.setEventType(eventType);
+                lifeEvent.setNotes(rawNotes);
+                lifeEvent.setExternalId(externalId);
+
+                // Pre-fetch or assign names - we can fetch these during bulk loop safely
+                for (String name : participantNames) {
+                    FamilyProfile profile = familyProfileRepository.findByName(name)
+                            .orElseGet(() -> {
+                                FamilyProfile newProfile = new FamilyProfile();
+                                newProfile.setName(name);
+                                return familyProfileRepository.save(newProfile);
+                            });
+                    lifeEvent.addParticipant(profile);
+                }
+
+                recordsToSave.add(lifeEvent);
+
+            } catch (Exception e) {
+                log.error("Failed to parse row: {}, Error: ", row, e);
+            }
+        }
+
+        // 3. DATABASE SYNC STAGE (Happens safely after all list iteration is complete)
+        log.info("Total mapped rows to save: {}", recordsToSave.size());
+
+        lifeEventRepository.deleteAll();
+        lifeEventRepository.saveAll(recordsToSave);
+        log.info("Successfully refreshed database tracking timeline!");
     }
 
     private Date parseToDate(String strDate) {
