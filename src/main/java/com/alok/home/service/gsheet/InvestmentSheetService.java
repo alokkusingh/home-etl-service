@@ -2,9 +2,7 @@ package com.alok.home.service.gsheet;
 
 import com.alok.home.commons.constant.InvestmentType;
 import com.alok.home.commons.entity.Investment;
-import com.alok.home.commons.repository.ExpenseRepository;
 import com.alok.home.commons.repository.InvestmentRepository;
-import com.alok.home.grpc.ExpenseCategorizerClient;
 import com.alok.home.service.GoogleSheetService;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
@@ -13,12 +11,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 
 @Slf4j
 @Service

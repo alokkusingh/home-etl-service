@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -49,137 +50,138 @@ public class MedicalSheetService extends GoogleSheetService {
         this.medicalMemberLabRepository = medicalMemberLabRepository;
     }
 
-    @Override
-    public void refreshSheet() throws IOException {
-        // Refresh for Alok
-        // TODO: Get entity id for Alok
-        try {
-            refreshSheet("Alok", 1);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        // Refresh for Rachna
-        //refreshMedicalReport("Rachna", 2);
-    }
 
     @Transactional
-    private void refreshSheet(String sheetName, Integer entityId) throws Exception {
-        String executionLockKey = ("medical-sync-lock-" + entityId).intern();
+    @Override
+    public void refreshSheet() throws IOException {
 
-
-        // Fetch the entire matrix grid for this specific family member's sheet tab
-        ValueRange response = sheets.spreadsheets().values()
-                .get(sheetId, sheetName + medicalSheetRange)
-                .execute();
-        List<List<Object>> matrix = response.getValues();
-        if (matrix == null || matrix.isEmpty()) return;
-
-        // 1. Identify Date Columns (Row 0 / Header Row)
-        List<Object> headerRow = matrix.get(0);
-        Map<Integer, LocalDate> columnIndexToDateMap = new HashMap<>();
-
-        for (int col = 4; col < headerRow.size(); col++) {
-            if (headerRow.get(col) == null) continue;
-            String cellStr = headerRow.get(col).toString().trim();
-            if (cellStr.isEmpty()) continue;
-
+       Stream.of(
+                new AbstractMap.SimpleEntry<>("Alok", 1)
+                //,new AbstractMap.SimpleEntry<String, Integer>("Rachna", 2)
+        ).forEach(entry -> {
+            String sheetName = entry.getKey();
+            Integer entityId = entry.getValue();
             try {
-                LocalDate date = LocalDate.parse(cellStr, DateTimeFormatter.ofPattern("dd-MM-yy"));
-                columnIndexToDateMap.put(col, date);
+                String executionLockKey = ("medical-sync-lock-" + entityId).intern();
+
+                // Fetch the entire matrix grid for this specific family member's sheet tab
+                ValueRange response = sheets.spreadsheets().values()
+                        .get(sheetId, sheetName + medicalSheetRange)
+                        .execute();
+                List<List<Object>> matrix = response.getValues();
+                if (matrix == null || matrix.isEmpty()) return;
+
+                // 1. Identify Date Columns (Row 0 / Header Row)
+                List<Object> headerRow = matrix.get(0);
+                Map<Integer, LocalDate> columnIndexToDateMap = new HashMap<>();
+
+                for (int col = 4; col < headerRow.size(); col++) {
+                    if (headerRow.get(col) == null) continue;
+                    String cellStr = headerRow.get(col).toString().trim();
+                    if (cellStr.isEmpty()) continue;
+
+                    try {
+                        LocalDate date = LocalDate.parse(cellStr, DateTimeFormatter.ofPattern("dd-M-yy"));
+                        columnIndexToDateMap.put(col, date);
+                    } catch (Exception e) {
+                        log.debug("Skipped header column index {} with text: {}", col, cellStr);
+                    }
+                }
+
+                // Map to pool dates cleanly into single unified records
+                Map<LocalDate, MedicalMemberLab> trackingMap = new HashMap<>();
+                // Set to track distinct metric IDs assigned per target date to prevent duplicate insertion crashes
+                Map<LocalDate, Set<Integer>> duplicateMetricGuardMap = new HashMap<>();
+
+                // 2. Loop vertically over the metric rows
+                for (int rowIdx = 1; rowIdx < matrix.size(); rowIdx++) {
+                    List<Object> row = matrix.get(rowIdx);
+                    if (row == null || row.size() <= 1 || row.get(1) == null) continue;
+
+                    String fullMetricName = row.get(1).toString().trim();
+                    if (fullMetricName.isEmpty() || fullMetricName.equalsIgnoreCase("Test")) continue;
+
+                    String rawMin = (row.size() > 2 && row.get(2) != null) ? row.get(2).toString().trim() : "";
+                    String rawMax = (row.size() > 3 && row.get(3) != null) ? row.get(3).toString().trim() : "";
+
+                    String extractedUnit = null;
+                    if (fullMetricName.contains("(") && fullMetricName.contains(")")) {
+                        extractedUnit = fullMetricName.substring(fullMetricName.lastIndexOf("(") + 1, fullMetricName.lastIndexOf(")"));
+                    }
+
+                    final String finalUnit = extractedUnit;
+
+                    // Fetch or dynamically seed the master list entry for this metric
+                    MedicalTestMetric metric = medicalTestMetricRepository.findByMetricName(fullMetricName)
+                            .orElseGet(() -> {
+                                MedicalTestMetric m = new MedicalTestMetric();
+                                m.setMetricName(fullMetricName);
+                                return m;
+                            });
+
+                    metric.setUnit(finalUnit);
+                    try {
+                        metric.setMinNormalValue(!rawMin.isEmpty() ? new BigDecimal(rawMin) : null);
+                        metric.setMaxNormalValue(!rawMax.isEmpty() ? new BigDecimal(rawMax) : null);
+                    } catch (NumberFormatException e) {
+                        log.warn("Invalid min/max numeric format on row {} for test: {}", rowIdx, fullMetricName);
+                    }
+
+                    metric = medicalTestMetricRepository.save(metric);
+                    final Integer currentMetricId = metric.getMetricId();
+
+                    // 3. Scan across columns starting from index 4 to pick up values
+                    for (int colIdx = 4; colIdx < row.size(); colIdx++) {
+                        if (!columnIndexToDateMap.containsKey(colIdx)) continue;
+                        if (row.get(colIdx) == null || row.get(colIdx).toString().trim().isEmpty()) continue;
+
+                        String rawVal = row.get(colIdx).toString().trim();
+                        BigDecimal value;
+                        try {
+                            value = new BigDecimal(rawVal);
+                        } catch (NumberFormatException e) {
+                            continue; // Skip textual notes or anomalies safely
+                        }
+
+                        LocalDate targetDate = columnIndexToDateMap.get(colIdx);
+
+                        // Check if this specific metric has already been recorded for this exact date
+                        Set<Integer> recordedMetricsForDate = duplicateMetricGuardMap.computeIfAbsent(targetDate, k -> new HashSet<>());
+                        if (recordedMetricsForDate.contains(currentMetricId)) {
+                            log.warn("Duplicate metric '{}' detected for date {}. Skipping second value entry to prevent DB crash.", fullMetricName, targetDate);
+                            continue; // Safely bypasses the crash condition
+                        }
+
+                        MedicalMemberLab labRecord = trackingMap.computeIfAbsent(targetDate, date -> {
+                            MedicalMemberLab mml = new MedicalMemberLab();
+                            mml.setEntityId(entityId);
+                            mml.setTestDate(date);
+                            return mml;
+                        });
+
+                        MedicalLabResult result = new MedicalLabResult();
+                        result.setMetric(metric);
+                        result.setRecordedValue(value);
+                        result.setIsOutOfRange(checkIfValueIsOutBounds(value, metric));
+
+                        labRecord.addResult(result);
+
+                        // Flag this metric ID as processed for this date
+                        recordedMetricsForDate.add(currentMetricId);
+                    }
+                }
+
+                // 4. DATABASE SYNC BLOCK
+                medicalMemberLabRepository.deleteByEntityId(Long.valueOf(entityId));
+                medicalMemberLabRepository.flush();
+
+                medicalMemberLabRepository.saveAll(trackingMap.values());
+                log.info("Successfully refreshed timeline mapping logs for entity ID: {}", entityId);
             } catch (Exception e) {
-                log.debug("Skipped header column index {} with text: {}", col, cellStr);
+                log.error("Error refreshing medical report for {}: {}", entry.getKey(), e.getMessage());
             }
-        }
+        });
 
-        // Map to pool dates cleanly into single unified records
-        Map<LocalDate, MedicalMemberLab> trackingMap = new HashMap<>();
-        // Set to track distinct metric IDs assigned per target date to prevent duplicate insertion crashes
-        Map<LocalDate, Set<Integer>> duplicateMetricGuardMap = new HashMap<>();
-
-        // 2. Loop vertically over the metric rows
-        for (int rowIdx = 1; rowIdx < matrix.size(); rowIdx++) {
-            List<Object> row = matrix.get(rowIdx);
-            if (row == null || row.size() <= 1 || row.get(1) == null) continue;
-
-            String fullMetricName = row.get(1).toString().trim();
-            if (fullMetricName.isEmpty() || fullMetricName.equalsIgnoreCase("Test")) continue;
-
-            String rawMin = (row.size() > 2 && row.get(2) != null) ? row.get(2).toString().trim() : "";
-            String rawMax = (row.size() > 3 && row.get(3) != null) ? row.get(3).toString().trim() : "";
-
-            String extractedUnit = null;
-            if (fullMetricName.contains("(") && fullMetricName.contains(")")) {
-                extractedUnit = fullMetricName.substring(fullMetricName.lastIndexOf("(") + 1, fullMetricName.lastIndexOf(")"));
-            }
-
-            final String finalUnit = extractedUnit;
-
-            // Fetch or dynamically seed the master list entry for this metric
-            MedicalTestMetric metric = medicalTestMetricRepository.findByMetricName(fullMetricName)
-                    .orElseGet(() -> {
-                        MedicalTestMetric m = new MedicalTestMetric();
-                        m.setMetricName(fullMetricName);
-                        return m;
-                    });
-
-            metric.setUnit(finalUnit);
-            try {
-                metric.setMinNormalValue(!rawMin.isEmpty() ? new BigDecimal(rawMin) : null);
-                metric.setMaxNormalValue(!rawMax.isEmpty() ? new BigDecimal(rawMax) : null);
-            } catch (NumberFormatException e) {
-                log.warn("Invalid min/max numeric format on row {} for test: {}", rowIdx, fullMetricName);
-            }
-
-            metric = medicalTestMetricRepository.save(metric);
-            final Integer currentMetricId = metric.getMetricId();
-
-            // 3. Scan across columns starting from index 4 to pick up values
-            for (int colIdx = 4; colIdx < row.size(); colIdx++) {
-                if (!columnIndexToDateMap.containsKey(colIdx)) continue;
-                if (row.get(colIdx) == null || row.get(colIdx).toString().trim().isEmpty()) continue;
-
-                String rawVal = row.get(colIdx).toString().trim();
-                BigDecimal value;
-                try {
-                    value = new BigDecimal(rawVal);
-                } catch (NumberFormatException e) {
-                    continue; // Skip textual notes or anomalies safely
-                }
-
-                LocalDate targetDate = columnIndexToDateMap.get(colIdx);
-
-                // Check if this specific metric has already been recorded for this exact date
-                Set<Integer> recordedMetricsForDate = duplicateMetricGuardMap.computeIfAbsent(targetDate, k -> new HashSet<>());
-                if (recordedMetricsForDate.contains(currentMetricId)) {
-                    log.warn("Duplicate metric '{}' detected for date {}. Skipping second value entry to prevent DB crash.", fullMetricName, targetDate);
-                    continue; // Safely bypasses the crash condition
-                }
-
-                MedicalMemberLab labRecord = trackingMap.computeIfAbsent(targetDate, date -> {
-                    MedicalMemberLab mml = new MedicalMemberLab();
-                    mml.setEntityId(entityId);
-                    mml.setTestDate(date);
-                    return mml;
-                });
-
-                MedicalLabResult result = new MedicalLabResult();
-                result.setMetric(metric);
-                result.setRecordedValue(value);
-                result.setIsOutOfRange(checkIfValueIsOutBounds(value, metric));
-
-                labRecord.addResult(result);
-
-                // Flag this metric ID as processed for this date
-                recordedMetricsForDate.add(currentMetricId);
-            }
-        }
-
-        // 4. DATABASE SYNC BLOCK
-        medicalMemberLabRepository.deleteByEntityId(Long.valueOf(entityId));
-        medicalMemberLabRepository.flush();
-
-        medicalMemberLabRepository.saveAll(trackingMap.values());
-        log.info("Successfully refreshed timeline mapping logs for entity ID: {}", entityId);
     }
 
 
