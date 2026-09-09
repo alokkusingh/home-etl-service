@@ -57,7 +57,7 @@ public class MedicalSheetService extends GoogleSheetService {
 
        Stream.of(
                 new AbstractMap.SimpleEntry<>("Alok", 1)
-                //,new AbstractMap.SimpleEntry<String, Integer>("Rachna", 2)
+                ,new AbstractMap.SimpleEntry<>("Rachna", 2)
         ).forEach(entry -> {
             String sheetName = entry.getKey();
             Integer entityId = entry.getValue();
