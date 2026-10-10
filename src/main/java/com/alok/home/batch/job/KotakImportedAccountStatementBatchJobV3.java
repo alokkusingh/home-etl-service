@@ -4,7 +4,9 @@ import com.alok.home.batch.processor.FileArchiveTasklet;
 import com.alok.home.batch.reader.CSVReader;
 import com.alok.home.batch.utils.BankUtils;
 import com.alok.home.commons.entity.Transaction;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.SkipListener;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -23,6 +25,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 
+@Slf4j
 @Configuration
 //@EnableBatchProcessing
 public class KotakImportedAccountStatementBatchJobV3 {
@@ -51,6 +54,25 @@ public class KotakImportedAccountStatementBatchJobV3 {
                 .faultTolerant()
                 .skip(FlatFileParseException.class)
                 .skipLimit(100)
+                .listener(new SkipListener<Transaction, Transaction>() {
+                    @Override
+                    public void onSkipInRead(Throwable t) {
+                        if (t instanceof FlatFileParseException) {
+                            FlatFileParseException ffpe = (FlatFileParseException) t;
+                            log.warn("Skipped bad line number: {} with input: {}", ffpe.getLineNumber(), ffpe.getInput());
+                        }
+                    }
+
+                    @Override
+                    public void onSkipInWrite(Transaction item, Throwable t) {
+                        log.warn("Skipped item: {} with error: {}", item, t.getMessage());
+                    }
+
+                    @Override
+                    public void onSkipInProcess(Transaction item, Throwable t) {
+                        log.warn("Skipped item: {} with error: {}", item, t.getMessage());
+                    }
+                })
                 .build();
 
         FileArchiveTasklet archiveTask = new FileArchiveTasklet();
