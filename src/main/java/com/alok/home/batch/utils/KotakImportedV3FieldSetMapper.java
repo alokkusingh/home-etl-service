@@ -2,6 +2,7 @@ package com.alok.home.batch.utils;
 
 import com.alok.home.commons.entity.Transaction;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
 
@@ -10,7 +11,13 @@ public class KotakImportedV3FieldSetMapper implements FieldSetMapper<Transaction
 
     @Override
     public Transaction mapFieldSet(FieldSet fieldSet) {
-        log.debug("Mapping fieldSet to Transaction, SrlNo: {}", fieldSet.readString("slNo"));
+        String slNo = fieldSet.readString("slNo");
+        if (slNo == null || slNo.isBlank() || !slNo.trim().matches("\\d+")) {
+            log.debug("Skipping non-transaction Kotak V3 row. slNo={}", slNo);
+            throw new FlatFileParseException("Skipping metadata row", "", 0);
+        }
+
+        log.debug("Mapping fieldSet to Transaction, SrlNo: {}", slNo);
         Transaction transaction = new Transaction();
         String strDate = fieldSet.readString("date");
         transaction.setDate(fieldSet.readDate("date", Utility.getDateFormat(strDate)));

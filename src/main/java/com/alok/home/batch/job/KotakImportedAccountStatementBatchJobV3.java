@@ -14,6 +14,7 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.MultiResourceItemReader;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +48,9 @@ public class KotakImportedAccountStatementBatchJobV3 {
                 .reader(kotakImportedItemsReaderV3)
                 .processor(defaultAccountProcessor)
                 .writer(bankAccountDbWriter)
+                .faultTolerant()
+                .skip(FlatFileParseException.class)
+                .skipLimit(100)
                 .build();
 
         FileArchiveTasklet archiveTask = new FileArchiveTasklet();
@@ -79,9 +83,9 @@ public class KotakImportedAccountStatementBatchJobV3 {
         flatFileItemReader.setName("KotakImportedAccount-CSV-Reader");
         flatFileItemReader.setLineMapper(BankUtils.importedAccountLineMapper(fieldNames, BankUtils.LineMapperType.KOTAK_V3));
         flatFileItemReader.setStrict(false);
-        flatFileItemReader.setComments(new String[] {",", "\"", "#",
-                "ALOK", "Bangalore", "KARNATAKA", "INDIA", "Opening", "Closing", "You",
-                "202", "Doddakannalli", "SArjapur", "Bengaluru", "Karnataka", "India", "560035"
+        flatFileItemReader.setComments(new String[] {",", "\"\"", "#",
+                "ALOK", "\"ALOK", "Bangalore", "\"BANGALORE", "Karnataka", "\"KARNATAKA", "INDIA", "\"INDIA", "Opening", "\"OPENING", "Closing", "\"Closing", "You", "\"You",
+                "202", "\"202", "Doddakannalli", "\"DODDAKANNALLI", "SArjapur", "\"SARJAPUR", "Bengaluru", "\"BENGALURU", "Karnataka", "\"Karnataka", "India", "\"India", "560035", "\"560035"
         });
         flatFileItemReader.setLinesToSkip(1);
         flatFileItemReader.setTransactionType("BANK");

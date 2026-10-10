@@ -17,13 +17,13 @@ public class BankAccountDbWriter implements ItemWriter<Transaction> {
 
     @Override
     public void write(Chunk<? extends Transaction> chunk) throws Exception {
-       /* records.stream()
-                .sorted()
-                .filter(Transaction::isSalary)
-                .forEach(
-                record -> log.debug("Parsed record: {}", record )
-        );*/
+       if (chunk == null || chunk.isEmpty()) {
+           log.debug("No records to save to the database.");
+           return;
+       }
 
-        transactionRepository.saveAll(chunk.getItems());
+       log.debug("Saving {} records to the database.", chunk.getItems().size());
+       transactionRepository.saveAll(chunk.getItems());
+       log.debug("Saved {} records to the database.", chunk.getItems().size());
     }
 }
