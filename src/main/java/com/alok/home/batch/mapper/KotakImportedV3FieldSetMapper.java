@@ -1,5 +1,6 @@
-package com.alok.home.batch.utils;
+package com.alok.home.batch.mapper;
 
+import com.alok.home.batch.utils.Utility;
 import com.alok.home.commons.entity.Transaction;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.file.FlatFileParseException;

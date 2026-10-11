@@ -1,6 +1,6 @@
 package com.alok.home.batch.processor;
 
-import com.alok.home.batch.utils.DefaultFieldExtractor;
+import com.alok.home.batch.extractor.DefaultFieldExtractor;
 import com.alok.home.batch.utils.Utility;
 import com.alok.home.commons.constant.MDCKey;
 import com.alok.home.commons.entity.RawTransaction;

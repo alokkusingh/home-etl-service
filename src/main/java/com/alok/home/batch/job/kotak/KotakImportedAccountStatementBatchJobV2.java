@@ -1,4 +1,4 @@
-package com.alok.home.batch.job;
+package com.alok.home.batch.job.kotak;
 
 import com.alok.home.batch.processor.FileArchiveTasklet;
 import com.alok.home.batch.reader.CSVReader;
@@ -6,7 +6,6 @@ import com.alok.home.batch.utils.BankUtils;
 import com.alok.home.commons.entity.Transaction;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
@@ -24,27 +23,27 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 //@EnableBatchProcessing
-public class KotakImportedAccountStatementBatchJob {
-    @Value("file:${file.path.kotak_account.imported}")
+public class KotakImportedAccountStatementBatchJobV2 {
+    @Value("file:${file.path.kotak_account.imported.v2}")
     private Resource[] resources;
 
-    @Value("${fields.name.kotak_account.imported:#{null}}")
+    @Value("${fields.name.kotak_account.imported.v2:#{null}}")
     private String[] fieldNames;
 
-    private static final String JOB_NAME = "KotakAccount-Imported-ETL-Job3";
-    private static final String PROCESSOR_TASK_NAME = "KotakAccount-Imported-ETL-Job3-file-load";
-    private static final String ARCHIVE_TASK_NAME = "KotakAccount-Imported-ETL-Job3-file-archive";
+    private static final String JOB_NAME = "KotakAccount-Imported-ETL-Job4";
+    private static final String PROCESSOR_TASK_NAME = "KotakAccount-Imported-ETL-Job4-file-load";
+    private static final String ARCHIVE_TASK_NAME = "KotakAccount-Imported-ETL-Job4-file-archive";
 
-    @Bean("KotakImportedAccountJob")
-    public Job kotakImportedAccountJob(JobRepository jobRepository,
-                                       PlatformTransactionManager transactionManager,
-                                       ItemReader<Transaction> kotakImportedItemsReader,
-                                       ItemProcessor<Transaction, Transaction> defaultAccountProcessor,
-                                       ItemWriter<Transaction> bankAccountDbWriter
+    @Bean("KotakImportedAccountJobV2")
+    public Job kotakImportedAccountJobV2(JobRepository jobRepository,
+                                         PlatformTransactionManager transactionManager,
+                                         ItemReader<Transaction> kotakImportedItemsReaderV2,
+                                         ItemProcessor<Transaction, Transaction> defaultAccountProcessor,
+                                         ItemWriter<Transaction> bankAccountDbWriter
     ) {
         Step step1 = new StepBuilder(PROCESSOR_TASK_NAME, jobRepository)
                 .<Transaction,Transaction>chunk(100, transactionManager)
-                .reader(kotakImportedItemsReader)
+                .reader(kotakImportedItemsReaderV2)
                 .processor(defaultAccountProcessor)
                 .writer(bankAccountDbWriter)
                 .build();
@@ -63,19 +62,19 @@ public class KotakImportedAccountStatementBatchJob {
     }
 
     @Bean
-    public MultiResourceItemReader<Transaction> kotakImportedItemsReader(@Qualifier("kotakImportedItemReader") CSVReader kotakImportedItemReader) {
+    public MultiResourceItemReader<Transaction> kotakImportedItemsReaderV2(@Qualifier("kotakImportedItemReaderV2") CSVReader kotakImportedItemReaderV2) {
 
         MultiResourceItemReader<Transaction> reader = new MultiResourceItemReader<>();
         reader.setResources(resources);
         reader.setStrict(false);
-        reader.setDelegate(kotakImportedItemReader);
+        reader.setDelegate(kotakImportedItemReaderV2);
         return reader;
     }
 
     @Bean
-    public CSVReader<Transaction> kotakImportedItemReader(@Qualifier("CSVReader") CSVReader<Transaction> flatFileItemReader) {
-        //return KotakUtils.kotakImportedItemReader(fieldNames);
-        //FlatFileItemReader<Transaction> flatFileItemReader = new FlatFileItemReader<>();
+    public CSVReader<Transaction> kotakImportedItemReaderV2(@Qualifier("CSVReader") CSVReader<Transaction> flatFileItemReader) {
+
+        // return KotakUtils.kotakImportedItemReader(fieldNames);
         flatFileItemReader.setName("KotakImportedAccount-CSV-Reader");
         flatFileItemReader.setLineMapper(BankUtils.importedAccountLineMapper(fieldNames, BankUtils.LineMapperType.KOTAK));
         flatFileItemReader.setStrict(false);

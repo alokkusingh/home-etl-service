@@ -1,16 +1,15 @@
-package com.alok.home.batch.job;
+package com.alok.home.batch.job.kotak;
 
 import com.alok.home.batch.processor.BankAccountProcessor;
 import com.alok.home.batch.processor.FileArchiveTasklet;
 import com.alok.home.commons.entity.RawTransaction;
 import com.alok.home.commons.entity.Transaction;
 import com.alok.home.commons.repository.ProcessedFileRepository;
-import com.alok.home.batch.utils.KotakLineExtractor;
-import com.alok.home.batch.utils.LineExtractor;
+import com.alok.home.batch.extractor.KotakLineExtractor;
+import com.alok.home.batch.extractor.LineExtractor;
 import com.alok.home.batch.reader.PDFReader;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;

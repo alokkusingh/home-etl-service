@@ -1,4 +1,4 @@
-package com.alok.home.batch.utils;
+package com.alok.home.batch.extractor;
 
 
 import com.alok.home.commons.entity.RawTransaction;

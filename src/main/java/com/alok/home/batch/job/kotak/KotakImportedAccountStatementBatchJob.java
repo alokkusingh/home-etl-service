@@ -1,4 +1,4 @@
-package com.alok.home.batch.job;
+package com.alok.home.batch.job.kotak;
 
 import com.alok.home.batch.processor.FileArchiveTasklet;
 import com.alok.home.batch.reader.CSVReader;
@@ -6,7 +6,6 @@ import com.alok.home.batch.utils.BankUtils;
 import com.alok.home.commons.entity.Transaction;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
@@ -24,27 +23,27 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 //@EnableBatchProcessing
-public class HDFCImportedAccountStatementBatchJob {
-    @Value("file:${file.path.hdfc_account.imported}")
+public class KotakImportedAccountStatementBatchJob {
+    @Value("file:${file.path.kotak_account.imported}")
     private Resource[] resources;
 
-    @Value("${fields.name.hdfc_account.imported:#{null}}")
+    @Value("${fields.name.kotak_account.imported:#{null}}")
     private String[] fieldNames;
 
-    private static final String JOB_NAME = "HDFCAccount-Imported-ETL-Job1";
-    private static final String PROCESSOR_TASK_NAME = "HDFCAccount-Imported-ETL-Job1-file-load";
-    private static final String ARCHIVE_TASK_NAME = "HDFCAccount-Imported-ETL-Job1-file-archive";
+    private static final String JOB_NAME = "KotakAccount-Imported-ETL-Job3";
+    private static final String PROCESSOR_TASK_NAME = "KotakAccount-Imported-ETL-Job3-file-load";
+    private static final String ARCHIVE_TASK_NAME = "KotakAccount-Imported-ETL-Job3-file-archive";
 
-    @Bean("HDFCImportedAccountJob")
-    public Job hdfcImportedAccountJob(JobRepository jobRepository,
-                                      PlatformTransactionManager transactionManager,
-                                      ItemReader<Transaction> hdfcImportedItemsReader,
-                                      ItemProcessor<Transaction, Transaction> defaultAccountProcessor,
-                                      ItemWriter<Transaction> bankAccountDbWriter
+    @Bean("KotakImportedAccountJob")
+    public Job kotakImportedAccountJob(JobRepository jobRepository,
+                                       PlatformTransactionManager transactionManager,
+                                       ItemReader<Transaction> kotakImportedItemsReader,
+                                       ItemProcessor<Transaction, Transaction> defaultAccountProcessor,
+                                       ItemWriter<Transaction> bankAccountDbWriter
     ) {
         Step step1 = new StepBuilder(PROCESSOR_TASK_NAME, jobRepository)
                 .<Transaction,Transaction>chunk(100, transactionManager)
-                .reader(hdfcImportedItemsReader)
+                .reader(kotakImportedItemsReader)
                 .processor(defaultAccountProcessor)
                 .writer(bankAccountDbWriter)
                 .build();
@@ -63,22 +62,27 @@ public class HDFCImportedAccountStatementBatchJob {
     }
 
     @Bean
-    public MultiResourceItemReader<Transaction> hdfcImportedItemsReader(@Qualifier("hdfcImportedItemReader") CSVReader hdfcImportedItemReader) {
+    public MultiResourceItemReader<Transaction> kotakImportedItemsReader(@Qualifier("kotakImportedItemReader") CSVReader kotakImportedItemReader) {
 
         MultiResourceItemReader<Transaction> reader = new MultiResourceItemReader<>();
         reader.setResources(resources);
         reader.setStrict(false);
-        reader.setDelegate(hdfcImportedItemReader);
+        reader.setDelegate(kotakImportedItemReader);
         return reader;
     }
 
     @Bean
-    public CSVReader<Transaction> hdfcImportedItemReader(@Qualifier("CSVReader") CSVReader<Transaction> flatFileItemReader) {
-        flatFileItemReader.setName("HDFCImportedAccount-CSV-Reader");
-        flatFileItemReader.setLineMapper(BankUtils.importedAccountLineMapper(fieldNames, BankUtils.LineMapperType.HDFC));
+    public CSVReader<Transaction> kotakImportedItemReader(@Qualifier("CSVReader") CSVReader<Transaction> flatFileItemReader) {
+        //return KotakUtils.kotakImportedItemReader(fieldNames);
+        //FlatFileItemReader<Transaction> flatFileItemReader = new FlatFileItemReader<>();
+        flatFileItemReader.setName("KotakImportedAccount-CSV-Reader");
+        flatFileItemReader.setLineMapper(BankUtils.importedAccountLineMapper(fieldNames, BankUtils.LineMapperType.KOTAK));
         flatFileItemReader.setStrict(false);
-        flatFileItemReader.setComments(new String[] {"#"});
-        flatFileItemReader.setLinesToSkip(2);
+        flatFileItemReader.setComments(new String[] {",", "\"", "#",
+                "ALOK", "Bangalore", "KARNATAKA", "INDIA", "Opening", "Closing", "You",
+                "202", "Doddakannalli", "SArjapur", "Bengaluru", "Karnataka", "India", "560035"
+        });
+        flatFileItemReader.setLinesToSkip(1);
         flatFileItemReader.setTransactionType("BANK");
 
         return flatFileItemReader;

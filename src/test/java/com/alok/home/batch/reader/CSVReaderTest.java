@@ -1,6 +1,6 @@
 package com.alok.home.batch.reader;
 
-import com.alok.home.batch.utils.KotakImportedV3FieldSetMapper;
+import com.alok.home.batch.mapper.KotakImportedV3FieldSetMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;

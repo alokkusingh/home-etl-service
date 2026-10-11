@@ -1,15 +1,14 @@
-package com.alok.home.batch.job;
+package com.alok.home.batch.job.citi;
 
 import com.alok.home.batch.processor.FileArchiveTasklet;
 import com.alok.home.batch.reader.PDFReader;
+import com.alok.home.batch.extractor.DefaultLineExtractor;
+import com.alok.home.batch.extractor.LineExtractor;
 import com.alok.home.commons.entity.RawTransaction;
 import com.alok.home.commons.entity.Transaction;
 import com.alok.home.commons.repository.ProcessedFileRepository;
-import com.alok.home.batch.utils.DefaultLineExtractor;
-import com.alok.home.batch.utils.LineExtractor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
@@ -28,23 +27,23 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 //@EnableBatchProcessing
-public class CitiAccountStatementBatchJob2 {
-    @Value("file:${file.path.citi_account.password2}")
+public class CitiAccountStatementBatchJob3 {
+    @Value("file:${file.path.citi_account.password3}")
     private Resource[] resources;
 
-    @Value("${file.password.citi.password2}")
+    @Value("${file.password.citi.password3}")
     private String filePassword;
 
     private ProcessedFileRepository processedFileRepository;
 
-    private static final String JOB_NAME = "CitiAccount-ETL-Job2";
-    private static final String PROCESSOR_TASK_NAME = "CitiAccount-ETL-Job2-file-load";
-    private static final String ARCHIVE_TASK_NAME = "CitiAccount-ETL-Job2-file-archive";
+    private static final String JOB_NAME = "CitiAccount-ETL-Job3";
+    private static final String PROCESSOR_TASK_NAME = "CitiAccount-ETL-Job3-file-load";
+    private static final String ARCHIVE_TASK_NAME = "CitiAccount-ETL-Job3-file-archive";
 
-    @Bean("CitiBankJob2")
+    @Bean("CitiBankJob3")
     public Job citiBankJob1(JobRepository jobRepository,
                             PlatformTransactionManager transactionManager,
-                            ItemReader<RawTransaction> citiItemsReader2,
+                            ItemReader<RawTransaction> citiItemsReader3,
                             ItemProcessor<RawTransaction, Transaction> citiBankAccountProcessor,
                             ItemWriter<Transaction> bankAccountDbWriter,
                             ProcessedFileRepository processedFileRepository
@@ -53,7 +52,7 @@ public class CitiAccountStatementBatchJob2 {
 
         Step step1 = new StepBuilder(PROCESSOR_TASK_NAME, jobRepository)
                 .<RawTransaction,Transaction>chunk(100, transactionManager)
-                .reader(citiItemsReader2)
+                .reader(citiItemsReader3)
                 .processor(citiBankAccountProcessor)
                 .writer(bankAccountDbWriter)
                 .build();
@@ -71,23 +70,25 @@ public class CitiAccountStatementBatchJob2 {
                 .build();
     }
 
+
+
     @Bean
-    public MultiResourceItemReader<RawTransaction> citiItemsReader2(PDFReader citiItemReader2) {
+    public MultiResourceItemReader<RawTransaction> citiItemsReader3(PDFReader citiItemReader3) {
 
         MultiResourceItemReader<RawTransaction> reader = new MultiResourceItemReader<>();
         reader.setResources(resources);
         reader.setStrict(false);
-        reader.setDelegate(citiItemReader2);
+        reader.setDelegate(citiItemReader3);
         return reader;
     }
 
     @Bean
     @DependsOn({"processedFileRepository"})
-    public PDFReader citiItemReader2(@Qualifier("PDFReader") PDFReader flatFileItemReader) {
+    public PDFReader citiItemReader3(@Qualifier("PDFReader") PDFReader flatFileItemReader) {
 
         //return CitiUtils.getCitiItemReader(filePassword, processedFileRepository);
         //PDFReader flatFileItemReader = new PDFReader(processedFileRepository);
-        flatFileItemReader.setName("CitiBank-PDF-Reader2");
+        flatFileItemReader.setName("CitiBank-PDF-Reader3");
         flatFileItemReader.setFilePassword(filePassword);
 
         LineExtractor defaultLineExtractor = new DefaultLineExtractor();

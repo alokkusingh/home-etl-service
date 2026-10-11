@@ -1,4 +1,4 @@
-package com.alok.home.batch.utils;
+package com.alok.home.batch.extractor;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
