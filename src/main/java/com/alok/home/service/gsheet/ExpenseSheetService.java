@@ -39,7 +39,7 @@ public class ExpenseSheetService extends GoogleSheetService {
     public ExpenseSheetService(
             Sheets sheets,
             @Value("${sheet.id.expense}") String sheetId,
-            @Value("${range.expense-sheet}") String expenseSheetRange,
+            @Value("${sheet.range.expense-sheet}") String expenseSheetRange,
             ExpenseRepository expenseRepository,
             ExpenseCategorizerClient expenseCategorizerClient, ExecutorService virtualThreadExecutorService
     ) {

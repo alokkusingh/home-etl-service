@@ -38,7 +38,7 @@ public class TimelineSheetService extends GoogleSheetService {
     public TimelineSheetService(
             Sheets sheets, InvestmentRepository investmentRepository, LifeEventRepository lifeEventRepository,
             @Value("${sheet.id.events.life}") String sheetId,
-            @Value("${range.events.life}") String lifeEventSheetRange, FamilyProfileRepository familyProfileRepository
+            @Value("${sheet.range.events.life}") String lifeEventSheetRange, FamilyProfileRepository familyProfileRepository
     ) {
         super();
         this.lifeEventRepository = lifeEventRepository;

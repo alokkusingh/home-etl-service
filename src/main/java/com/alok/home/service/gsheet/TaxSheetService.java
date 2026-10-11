@@ -34,8 +34,8 @@ public class TaxSheetService extends GoogleSheetService {
     public TaxSheetService(
             Sheets sheets,
             @Value("${sheet.id.expense}") String sheetId,
-            @Value("${range.tax-sheet}") String taxSheetRange,
-            @Value("${range.tax-sheet-monthly}") String taxMonthSheetRange,
+            @Value("${sheet.range.tax-sheet}") String taxSheetRange,
+            @Value("${sheet.range.tax-sheet-monthly}") String taxMonthSheetRange,
             TaxRepository taxRepository,
             TaxMonthlyRepository taxMonthlyRepository,
             ExecutorService virtualThreadExecutorService

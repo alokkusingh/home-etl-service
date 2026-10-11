@@ -32,7 +32,7 @@ public class EstateSheetService extends GoogleSheetService {
     public EstateSheetService(
             Sheets sheets, InvestmentRepository investmentRepository,
             @Value("${sheet.id.odion}") String sheetId,
-            @Value("${range.odion.transaction}") String odionTransactionsSheetRange,
+            @Value("${sheet.range.odion.transaction}") String odionTransactionsSheetRange,
             OdionTransactionRepository odionTransactionRepository
     ) {
         super();

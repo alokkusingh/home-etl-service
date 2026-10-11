@@ -38,7 +38,7 @@ public class MedicalSheetService extends GoogleSheetService {
     public MedicalSheetService(
             Sheets sheets,
             @Value("${sheet.id.medical}") String sheetId,
-            @Value("${range.medical-sheet}") String medicalSheetRange,
+            @Value("${sheet.range.medical-sheet}") String medicalSheetRange,
             MedicalTestMetricRepository medicalTestMetricRepository,
             MedicalMemberLabRepository medicalMemberLabRepository
     ) {

@@ -30,7 +30,7 @@ public class InvestmentSheetService extends GoogleSheetService {
     public InvestmentSheetService(
             Sheets sheets, InvestmentRepository investmentRepository,
             @Value("${sheet.id.expense}") String sheetId,
-            @Value("${range.investment-sheet}") String investmentSheetRange
+            @Value("${sheet.range.investment-sheet}") String investmentSheetRange
     ) {
         super();
         this.investmentRepository = investmentRepository;

@@ -1,0 +1,60 @@
+spring:
+  debug: true
+  datasource:
+    url: "jdbc:mysql://jgte:32306/home-stack"
+    username: "${DB_USERNAME:root}"
+    password: "${DB_PASSWORD:password}"
+    driver-class-name: "com.mysql.cj.jdbc.Driver"
+    hikari:
+      connection-timeout: 30000
+      minimum-idle: 10
+      maximum-pool-size: 10
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  jpa:
+    properties:
+      hibernate:
+        dialect: "org.hibernate.dialect.MySQL8Dialect"
+        format_sql: true
+        id:
+          new_generator_mappings: true
+    show-sql: true
+    hibernate:
+      ddl-auto: "update"
+  batch:
+    initialize-schema: "always"
+
+flyway:
+  locations: "~/test"
+  baselineOnMigrate: true
+  enabled: false
+
+# udp host for sender. By default Jaeger libraries use a UDP sender to report finished spans to the jaeger-agent daemon
+opentracing:
+  jaeger:
+    udp-sender:
+      host: "jaeger-agent"
+      port: 6831
+    log-spans: true
+
+# ---------------------- Auth URL ------------------------------
+auth:
+  token:
+    issuer:
+      urls:
+        google: "https://hdash.alok.world/home/auth/google/validate/id-token"
+        home-stack-auth: "https://hdash.alok.world/home/auth/home/token/validate"
+
+#----------------------- gRPC -----------------------------------
+grpc:
+  client:
+    exp-cat-grpc-server:
+      address: "static://127.0.0.1:5051"
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: "plaintext"
+
+logging:
+  level:
+    com.alok.home.batch.writer.BankAccountDbWriter: "DEBUG"
+    com.alok.home.batch.utils: "DEBUG"

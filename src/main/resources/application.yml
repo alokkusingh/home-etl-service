@@ -1,0 +1,129 @@
+application:
+  id: "home-etl-service"
+
+server:
+  port: 8081
+  servlet:
+    context-path: "/home/etl"
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: "home-etl-service"
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: "UTC"
+  batch:
+    job:
+      enabled: false
+
+# If you enable below config - after reading data from DB Jackson will
+# convert data in the IST otherwise in UTC
+# Ideally should be UTC, let client convert based on their local value
+#spring.jackson.time-zone=IST
+
+# Application configuration
+fields:
+  name:
+    student: "id,name,department,marks"
+    missing-account: "date,description,debit,credit"
+    manual-account: "date,description,debit,credit,head,subHead,bank,isSalary,file"
+    kotak-account-imported: "slNo,date,description,chqRefNumber,amount,drCr,balance,balanceDrCr"
+    kotak-account-imported-v2: "slNo,trDate,date,description,chqRefNumber,amount,drCr,balance,balanceDrCr"
+    kotak-account-imported-v3: "slNo,trDate,date,description,chqRefNumber,debitAmount,creditAmount,closingBalance,drCr"
+    hdfc-account-imported: "date,narration,valueDate,debitAmount,creditAmount,chqRef,closingBalance"
+    expense: "date,head,amount,comment,year,month"
+    tax: "financialYear,paidAmount,refundAmount"
+    # fields.name.investment=year,month,pfContribution,pfSubTotal,pfValueAsOnMonth,licContribution,licSubTotal,licValueAsOnMonth,npsContribution,npsSubTotal,npsValueAsOnMonth,shareContribution,shareSubTotal,shareValueAsOnMonth,,,,,,
+    investment: "year,month,pfContribution,,pfValueAsOnMonth,licContribution,,licValueAsOnMonth,npsContribution,,npsValueAsOnMonth,shareContribution,,shareValueAsOnMonth,,,,,,,"
+
+file:
+  path:
+    base:
+      dir: "/Users/aloksingh/BankStatements"
+    citi-account-password1: "${file.path.base.dir}/CitiBank/password1/*.pdf"
+    citi-account-password2: "${file.path.base.dir}/CitiBank/password2/*.pdf"
+    citi-account-password3: "${file.path.base.dir}/CitiBank/password3/*.pdf"
+    kotak-account: "${file.path.base.dir}/Kotak/*.pdf"
+    kotak-account-nopassword: "${file.path.base.dir}/Kotak/nopwd/*.pdf"
+    missing-account: "${file.path.base.dir}/missing/*.csv"
+    manual-account: "${file.path.base.dir}/manual/*.csv"
+    kotak-account-imported: "${dir.path.kotak-account-imported}/${file.name.kotak-account-imported}"
+    kotak-account-imported-v2: "${dir.path.kotak-account-imported}/${file.name.kotak-account-imported-v2}"
+    kotak-account-imported-v3: "${dir.path.kotak-account-imported-v3}/${file.name.kotak-account-imported-v3}"
+    hdfc-account-imported: "${dir.path.hdfc-account-imported}/${file.name.hdfc-account-imported}"
+    expense: "${dir.path.expense}/*.csv"
+    tax: "${dir.path.tax}/*.csv"
+    investment: "${dir.path.investment}/*.csv"
+    service-account-key: "${file.path.base.dir}/secure/home-stack-357002-398915933740.json"
+  password:
+    citi-password1: "ALOK0103"
+    citi-password2: "ALOK01MAR"
+    citi-password3: "ALOK0103"
+    kotak: "23812505"
+  name:
+    kotak-account-imported: "Report-*.csv"
+    kotak-account-imported-v2: "KM52025632*.csv"
+    kotak-account-imported-v3: "KM52025632*.csv"
+    hdfc-account-imported: "*.txt"
+  export:
+    google:
+      sheet: "${file.path.base.dir}/for_google_sheet.csv"
+
+dir:
+  path:
+    kotak-account-imported: "${file.path.base.dir}/Kotak/exported"
+    kotak-account-imported-v3: "${file.path.base.dir}/Kotak/exported/v3"
+    hdfc-account-imported: "${file.path.base.dir}/HDFC/exported"
+    expense: "${file.path.base.dir}/expense"
+    tax: "${file.path.base.dir}/tax"
+    investment: "${file.path.base.dir}/investment"
+
+web:
+  cache-control:
+    max-age: 30
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: "always"
+      probes:
+        enabled: true
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+
+# ---------------------- Google Sheet -------------------------
+sheet:
+  id:
+    expense: "1gFBnS_mCgofs-Myh_QwrOmOYh440F5N8fLNL7EIc3Go"
+    odion: "19TsSy71KGzXbHmG8Uu2wy8aKSbnc4GcrIj5W32VTg8k"
+    events:
+      life: "10mOPCirzYABeACXMHmwDa24MYjzaR6JifK8RumqqNKw"
+    medical: "1tS1jcn9dO7YXx_j5BejWTRt0wTriIboXp7K8rVs6OlQ"
+  range:
+    tax-sheet: "Tax by year!A2:C30"
+    tax-sheet-monthly: "Tax by month!A2:B250"
+    expense-sheet: "Form Responses 1!A2:F8000"
+    investment-sheet: "Investment!A3:W900"
+    odion:
+      transaction: "Transactions!A2:E900"
+    events:
+      life: "Life Event!A2:H50"
+    medical-sheet: "!A1:Z90"
+
+form:
+  expense:
+    url: ""
+  estate:
+    url: ""
