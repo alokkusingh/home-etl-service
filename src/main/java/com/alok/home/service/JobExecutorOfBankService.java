@@ -59,8 +59,8 @@ public class JobExecutorOfBankService {
     public JobExecutorOfBankService(
             JobLauncher jobLauncher,
             ResourceLoader resourceLoader,
-            @Value("${dir.path.hdfc_account.imported}")String hdfcExportDir,
-            @Value("${dir.path.kotak_account.imported.v3}") String kotakExportDir,
+            @Value("${dir.path.hdfc-account-imported}")String hdfcExportDir,
+            @Value("${dir.path.kotak-account-imported-v3}") String kotakExportDir,
             @Value("${file.export.google.sheet}") String outputFileName,
             @Qualifier("MissingAccountJob") Job missingAccountJob,
             @Qualifier("ManualAccountJob") Job manualAccountJob,

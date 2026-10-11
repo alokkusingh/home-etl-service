@@ -24,10 +24,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 //@EnableBatchProcessing
 public class HDFCImportedAccountStatementBatchJob {
-    @Value("file:${file.path.hdfc_account.imported}")
+    @Value("file:${file.path.hdfc-account-imported}")
     private Resource[] resources;
 
-    @Value("${fields.name.hdfc_account.imported:#{null}}")
+    @Value("${fields.name.hdfc-account-imported:#{null}}")
     private String[] fieldNames;
 
     private static final String JOB_NAME = "HDFCAccount-Imported-ETL-Job1";

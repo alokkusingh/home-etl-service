@@ -28,7 +28,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 //@EnableBatchProcessing
 public class KotakAccountStatementBatchJobNoPwd {
-    @Value("file:${file.path.kotak_account.nopassword}")
+    @Value("file:${file.path.kotak-account-nopassword}")
     private Resource[] resources;
 
 

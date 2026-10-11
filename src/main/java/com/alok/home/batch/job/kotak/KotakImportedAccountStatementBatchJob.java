@@ -24,10 +24,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 //@EnableBatchProcessing
 public class KotakImportedAccountStatementBatchJob {
-    @Value("file:${file.path.kotak_account.imported}")
+    @Value("file:${file.path.kotak-account-imported}")
     private Resource[] resources;
 
-    @Value("${fields.name.kotak_account.imported:#{null}}")
+    @Value("${fields.name.kotak-account-imported:#{null}}")
     private String[] fieldNames;
 
     private static final String JOB_NAME = "KotakAccount-Imported-ETL-Job3";

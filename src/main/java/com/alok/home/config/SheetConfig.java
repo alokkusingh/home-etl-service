@@ -28,7 +28,7 @@ public class SheetConfig {
     private final ExecutorService virtualThreadExecutorService;
 
     public SheetConfig(
-            @Value("${file.path.service_account.key}") String serviceAccountKeyFile,
+            @Value("${file.path.service-account-key}") String serviceAccountKeyFile,
             ExecutorService virtualThreadExecutorService
     ) {
         this.serviceAccountKeyFile = serviceAccountKeyFile;

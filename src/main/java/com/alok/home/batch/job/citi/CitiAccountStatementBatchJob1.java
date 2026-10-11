@@ -32,10 +32,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 //@EnableBatchProcessing
 public class CitiAccountStatementBatchJob1 {
-    @Value("file:${file.path.citi_account.password1}")
+    @Value("file:${file.path.citi-account-password1}")
     private Resource[] resources;
 
-    @Value("${file.password.citi.password1}")
+    @Value("${file.password.citi-password1}")
     private String filePassword;
 
     private ProcessedFileRepository processedFileRepository;

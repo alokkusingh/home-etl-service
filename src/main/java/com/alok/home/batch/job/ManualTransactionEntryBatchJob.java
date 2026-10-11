@@ -28,10 +28,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 //@EnableBatchProcessing
 public class ManualTransactionEntryBatchJob {
-    @Value("file:${file.path.manual_account}")
+    @Value("file:${file.path.manual-account}")
     private Resource[] resources;
 
-    @Value("${fields.name.manual_account:#{null}}")
+    @Value("${fields.name.manual-account:#{null}}")
     private String[] fieldNames;
 
     private static final String JOB_NAME = "";

@@ -31,7 +31,7 @@ import java.text.SimpleDateFormat;
 @Configuration
 //@EnableBatchProcessing
 public class KotakAccountStatementBatchJob {
-    @Value("file:${file.path.kotak_account}")
+    @Value("file:${file.path.kotak-account}")
     private Resource[] resources;
 
     @Value("${file.password.kotak}")

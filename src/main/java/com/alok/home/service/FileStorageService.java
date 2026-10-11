@@ -25,13 +25,13 @@ public class FileStorageService {
     @Value("${file.path.base.dir}")
     private String baseDir;
 
-    @Value("${dir.path.kotak_account.imported}")
+    @Value("${dir.path.kotak-account-imported}")
     private String kotakImportedLocation;
 
-    @Value("${dir.path.kotak_account.imported.v3}")
+    @Value("${dir.path.kotak-account-imported-v3}")
     private String kotakImportedV3Location;
 
-    @Value("${dir.path.hdfc_account.imported}")
+    @Value("${dir.path.hdfc-account-imported}")
     private String hdfcImportedLocation;
 
     @Value("${dir.path.expense}")

@@ -28,10 +28,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 //@EnableBatchProcessing
 public class MissingAccountStatementBatchJob {
-    @Value("file:${file.path.missing_account}")
+    @Value("file:${file.path.missing-account}")
     private Resource[] resources;
 
-    @Value("${fields.name.missing_account:#{null}}")
+    @Value("${fields.name.missing-account:#{null}}")
     private String[] fieldNames;
 
     private static final String JOB_NAME = "";
