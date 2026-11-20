@@ -10,8 +10,12 @@ service ExpenseCategorizer {
 
 message ExpenseCategorizationRequest {
   string head = 1;
+  string comment = 2;
+  double amount = 3;
 }
 
 message ExpenseCategorizationResponse {
   string category = 1;
+  float confidence = 2;
+  bool needs_review = 3;
 }
